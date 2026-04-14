@@ -1,6 +1,21 @@
 import mongoose from 'mongoose'
 
-const AdSchema = new mongoose.Schema({
+export interface IAd {
+  brandId: mongoose.Types.ObjectId
+  adId?: string
+  platform: string
+  headline?: string
+  primaryText?: string
+  imageUrl?: string
+  videoUrl?: string
+  thumbnailUrl?: string
+  startDate?: Date
+  status: 'ACTIVE' | 'INACTIVE' | 'UNKNOWN'
+  performanceData: null
+  rawData?: unknown
+}
+
+const AdSchema = new mongoose.Schema<IAd>({
   brandId: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', required: true, index: true },
   adId: { type: String, index: true },
   platform: { type: String, default: 'Facebook/Instagram' },
@@ -15,4 +30,4 @@ const AdSchema = new mongoose.Schema({
   rawData: mongoose.Schema.Types.Mixed,
 }, { timestamps: true })
 
-export default mongoose.model('Ad', AdSchema)
+export default mongoose.model<IAd>('Ad', AdSchema)

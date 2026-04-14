@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import App from '../../src/App.jsx'
+import App from '../../src/App.tsx'
 
 describe('App', () => {
   it('renders without crashing', () => {

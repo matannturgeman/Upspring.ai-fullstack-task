@@ -1,6 +1,19 @@
 import mongoose from 'mongoose'
 
-const BrandSchema = new mongoose.Schema({
+export interface ICompetitor {
+  name: string
+  reason: string
+}
+
+export interface IBrand {
+  name: string
+  normalizedName: string
+  lastFetched: Date
+  adCount: number
+  competitors: ICompetitor[]
+}
+
+const BrandSchema = new mongoose.Schema<IBrand>({
   name: { type: String, required: true, index: true },
   normalizedName: { type: String, required: true, index: true },
   lastFetched: { type: Date, default: Date.now },
@@ -10,4 +23,4 @@ const BrandSchema = new mongoose.Schema({
 
 BrandSchema.index({ lastFetched: 1 }, { expireAfterSeconds: 3600 })
 
-export default mongoose.model('Brand', BrandSchema)
+export default mongoose.model<IBrand>('Brand', BrandSchema)
