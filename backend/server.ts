@@ -10,6 +10,7 @@ import { timeoutMiddleware } from './src/middleware/timeout.ts'
 import adsRouter from './src/routes/ads.ts'
 import analysisRouter from './src/routes/analysis.ts'
 import competitorsRouter from './src/routes/competitors.ts'
+import imageProxyRouter from './src/utils/imageProxy.ts'
 
 validateEnv()
 
@@ -24,6 +25,7 @@ app.use(timeoutMiddleware(30_000))
 app.use('/api/ads', adsRouter)
 app.use('/api/analysis', analysisRouter)
 app.use('/api/competitors', competitorsRouter)
+app.use('/api/proxy/image', imageProxyRouter)
 
 app.use(errorHandler)
 
