@@ -1,0 +1,68 @@
+import { useState } from 'react'
+import type { AdDto } from '../../types/ad.types.ts'
+
+interface Props {
+  ad: AdDto
+}
+
+export function AdCard({ ad }: Props) {
+  const [imgError, setImgError] = useState(false)
+
+  const mediaUrl = ad.thumbnailUrl || ad.imageUrl
+  const proxyUrl = mediaUrl
+    ? `/api/proxy/image?url=${encodeURIComponent(mediaUrl)}`
+    : null
+
+  return (
+    <div data-testid="ad-card" className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition">
+      {/* Media */}
+      <div className="aspect-video bg-gray-100 flex items-center justify-center relative">
+        {proxyUrl && !imgError ? (
+          <img
+            src={proxyUrl}
+            alt="Ad creative"
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <span className="text-gray-400 text-sm">No preview available</span>
+        )}
+        {ad.videoUrl && (
+          <span className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded font-medium">
+            VIDEO
+          </span>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-3 space-y-1">
+        {ad.headline && (
+          <p className="font-semibold text-gray-900 text-sm line-clamp-2">{ad.headline}</p>
+        )}
+        {ad.primaryText && (
+          <p className="text-gray-600 text-xs line-clamp-3">{ad.primaryText}</p>
+        )}
+
+        <div className="flex items-center justify-between pt-1 text-xs text-gray-400">
+          <span>{ad.platform}</span>
+          <span>
+            {ad.startDate
+              ? new Date(ad.startDate).toLocaleDateString()
+              : 'Date unknown'}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 pt-0.5">
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+            ad.status === 'ACTIVE'
+              ? 'bg-green-100 text-green-700'
+              : 'bg-gray-100 text-gray-500'
+          }`}>
+            {ad.status === 'ACTIVE' ? 'Active' : 'Inactive'}
+          </span>
+          <span className="text-xs text-gray-400 italic">Performance data unavailable</span>
+        </div>
+      </div>
+    </div>
+  )
+}
