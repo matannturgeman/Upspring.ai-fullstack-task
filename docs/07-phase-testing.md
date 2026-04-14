@@ -11,8 +11,8 @@ Unit tests for services/utils, integration tests for API routes, and Playwright 
 ## Test Stack
 | Layer | Tool |
 |---|---|
-| Backend unit | Jest + `@jest/globals` |
-| Backend integration | Jest + Supertest |
+| Backend unit | Vitest |
+| Backend integration | Vitest + Supertest |
 | Frontend unit | Vitest + React Testing Library |
 | E2E | Playwright |
 
@@ -22,14 +22,18 @@ Unit tests for services/utils, integration tests for API routes, and Playwright 
 
 ### Setup
 
-**`backend/jest.config.js`**
+**`backend/vitest.config.js`**
 ```js
-export default {
-  testEnvironment: 'node',
-  transform: {},
-  extensionsToTreatAsEsm: ['.js'],
-  testMatch: ['**/tests/**/*.test.js'],
-}
+import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  test: {
+    environment: 'node',
+    globals: true,
+    setupFiles: './tests/setup.js',
+    include: ['tests/**/*.test.js'],
+  },
+})
 ```
 
 **`backend/tests/setup.js`**
@@ -52,7 +56,7 @@ afterAll(async () => {
 
 **`backend/tests/unit/apifyParser.test.js`**
 ```js
-import { describe, it, expect } from '@jest/globals'
+import { describe, it, expect } from 'vitest'
 import { parseApifyAd } from '../../src/utils/apifyParser.js'
 
 describe('parseApifyAd', () => {
@@ -101,7 +105,7 @@ describe('parseApifyAd', () => {
 
 **`backend/tests/unit/promptBuilder.test.js`**
 ```js
-import { describe, it, expect } from '@jest/globals'
+import { describe, it, expect } from 'vitest'
 import { buildAnalysisPrompt, buildImageBlocks } from '../../src/utils/promptBuilder.js'
 
 const mockAds = [
@@ -147,12 +151,12 @@ describe('buildImageBlocks', () => {
 
 **`backend/tests/integration/ads.test.js`**
 ```js
-import { describe, it, expect, jest, beforeEach } from '@jest/globals'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
 import app from '../../server.js'
 import * as apifyService from '../../src/services/apifyService.js'
 
-jest.mock('../../src/services/apifyService.js')
+vi.mock('../../src/services/apifyService.js')
 
 describe('GET /api/ads', () => {
   it('returns 400 when brand param missing', async () => {
@@ -182,7 +186,6 @@ describe('GET /api/ads', () => {
 
   it('returns empty state when no ads found', async () => {
     apifyService.scrapeMetaAds.mockResolvedValue({ ads: [], partial: false, empty: true })
-
     const res = await request(app).get('/api/ads?brand=UnknownBrand99999')
     expect(res.status).toBe(200)
     expect(res.body.empty).toBe(true)
@@ -191,7 +194,6 @@ describe('GET /api/ads', () => {
 
   it('returns 502 when Apify throws', async () => {
     apifyService.scrapeMetaAds.mockRejectedValue(new Error('Apify unreachable'))
-
     const res = await request(app).get('/api/ads?brand=AnyBrand')
     expect(res.status).toBe(502)
     expect(res.body.code).toBe('PROVIDER_ERROR')
@@ -207,9 +209,7 @@ describe('GET /api/ads', () => {
     await request(app).get('/api/ads?brand=CachedBrand')
     const res2 = await request(app).get('/api/ads?brand=CachedBrand')
     expect(res2.body.fromCache).toBe(true)
-    // Apify should only have been called once
-    expect(apifyService.scrapeMetaAds).toHaveBeenCalledTimes(1)
-  })
+    expect(apifyService.scrapeMetaAds).toHaveBeenCalledTimes(1)  })
 })
 ```
 
@@ -219,12 +219,12 @@ describe('GET /api/ads', () => {
 
 **`backend/tests/integration/analysis.test.js`**
 ```js
-import { describe, it, expect, jest } from '@jest/globals'
+import { describe, it, expect, vi } from 'vitest'
 import request from 'supertest'
 import app from '../../server.js'
 import * as claudeService from '../../src/services/claudeService.js'
 
-jest.mock('../../src/services/claudeService.js')
+vi.mock('../../src/services/claudeService.js')
 
 describe('POST /api/analysis/ask', () => {
   it('returns 400 when brandId missing', async () => {
@@ -503,16 +503,20 @@ test.describe('Competitor Discovery', () => {
 })
 ```
 
-## npm Scripts to Add
+## npm Scripts
 
 **`backend/package.json`**
 ```json
 {
+  "type": "module",
   "scripts": {
-    "test": "jest",
-    "test:unit": "jest tests/unit",
-    "test:integration": "jest tests/integration",
-    "test:watch": "jest --watch"
+    "dev": "vite-node --watch server.js",
+    "start": "node server.js",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   }
 }
 ```
@@ -521,8 +525,11 @@ test.describe('Competitor Discovery', () => {
 ```json
 {
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   }

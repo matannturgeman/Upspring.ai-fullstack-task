@@ -22,7 +22,7 @@ mkdir -p backend/tests/{unit,integration}
 cd backend
 npm init -y
 npm install express mongoose dotenv cors helmet morgan uuid
-npm install -D nodemon jest supertest @jest/globals
+npm install -D vite-node vitest supertest
 ```
 
 **`backend/server.js`**
@@ -169,12 +169,43 @@ export function timeoutMiddleware(ms) {
 }
 ```
 
-### 1.6 — Frontend scaffold
+### 1.6 — Backend: vitest config + dev script
+
+**`backend/vitest.config.js`**
+```js
+import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  test: {
+    environment: 'node',
+    globals: true,
+    setupFiles: './tests/setup.js',
+    include: ['tests/**/*.test.js'],
+  },
+})
+```
+
+Add to **`backend/package.json`** scripts:
+```json
+{
+  "type": "module",
+  "scripts": {
+    "dev": "vite-node --watch server.js",
+    "start": "node server.js",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:watch": "vitest"
+  }
+}
+```
+
+### 1.7 — Frontend scaffold
 ```bash
 cd ../frontend
 npm create vite@latest . -- --template react
 npm install
-npm install axios zustand react-query @tanstack/react-query tailwindcss autoprefixer postcss
+npm install axios zustand @tanstack/react-query tailwindcss autoprefixer postcss
 npm install -D @testing-library/react @testing-library/jest-dom vitest @playwright/test jsdom
 npx tailwindcss init -p
 ```
@@ -186,8 +217,12 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  test: { environment: 'jsdom', setupFiles: './tests/setup.js' },
-  server: { proxy: { '/api': 'http://localhost:4000' } }
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './tests/setup.js',
+  },
+  server: { proxy: { '/api': 'http://localhost:4000' } },
 })
 ```
 
