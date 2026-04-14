@@ -1,3 +1,7 @@
+import { config } from 'dotenv'
+
+config() // load .env before anything checks process.env
+
 const required = ['MONGODB_URI', 'APIFY_API_TOKEN', 'ANTHROPIC_API_KEY', 'PERPLEXITY_API_KEY']
 
 export function validateEnv(): void {
