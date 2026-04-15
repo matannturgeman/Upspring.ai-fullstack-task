@@ -14,9 +14,9 @@ export function AdCard({ ad }: Props) {
     : null
 
   return (
-    <div data-testid="ad-card" className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition">
+    <div data-testid="ad-card" className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm hover:shadow-md dark:hover:shadow-gray-900 transition">
       {/* Media */}
-      <div className="aspect-video bg-gray-100 flex items-center justify-center relative">
+      <div className="aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
         {proxyUrl && !imgError ? (
           <img
             src={proxyUrl}
@@ -25,7 +25,7 @@ export function AdCard({ ad }: Props) {
             onError={() => setImgError(true)}
           />
         ) : (
-          <span className="text-gray-400 text-sm">No preview available</span>
+          <span className="text-gray-400 dark:text-gray-600 text-sm">No preview available</span>
         )}
         {ad.videoUrl && (
           <span className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded font-medium">
@@ -37,13 +37,13 @@ export function AdCard({ ad }: Props) {
       {/* Content */}
       <div className="p-3 space-y-1">
         {ad.headline && (
-          <p className="font-semibold text-gray-900 text-sm line-clamp-2">{ad.headline}</p>
+          <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm line-clamp-2">{ad.headline}</p>
         )}
         {ad.primaryText && (
-          <p className="text-gray-600 text-xs line-clamp-3">{ad.primaryText}</p>
+          <p className="text-gray-600 dark:text-gray-400 text-xs line-clamp-3">{ad.primaryText}</p>
         )}
 
-        <div className="flex items-center justify-between pt-1 text-xs text-gray-400">
+        <div className="flex items-center justify-between pt-1 text-xs text-gray-400 dark:text-gray-500">
           <span>{ad.platform}</span>
           <span>
             {ad.startDate
@@ -55,12 +55,12 @@ export function AdCard({ ad }: Props) {
         <div className="flex items-center gap-2 pt-0.5">
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
             ad.status === 'ACTIVE'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-gray-100 text-gray-500'
+              ? 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
           }`}>
             {ad.status === 'ACTIVE' ? 'Active' : 'Inactive'}
           </span>
-          <span className="text-xs text-gray-400 italic">Performance data unavailable</span>
+          <span className="text-xs text-gray-400 dark:text-gray-600 italic">Performance data unavailable</span>
         </div>
       </div>
     </div>

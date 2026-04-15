@@ -1,36 +1,42 @@
 import { SearchBar } from '../components/SearchBar/SearchBar.tsx'
 import { AdGrid } from '../components/AdGrid/AdGrid.tsx'
+import { ThemeToggle } from '../components/ThemeToggle/ThemeToggle.tsx'
 import { useAppStore } from '../store/appStore.ts'
+import { useTheme } from '../hooks/useTheme.ts'
 
 export function Home() {
   const { ads, currentBrand, adsLoading } = useAppStore()
+  const { theme, toggle } = useTheme()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b px-6 py-4 shadow-sm">
-        <h1 className="text-xl font-bold text-gray-900">Upspring.ai — Ad Intelligence</h1>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 shadow-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">Upspring.ai — Ad Intelligence</h1>
+          <ThemeToggle theme={theme} onToggle={toggle} />
+        </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-6">
         <div className="flex flex-col items-center gap-2">
-          <h2 className="text-2xl font-semibold text-gray-800">Research Brand Ads</h2>
-          <p className="text-gray-500 text-sm">Enter a brand name to explore their Meta ads</p>
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Research Brand Ads</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Enter a brand name to explore their Meta ads</p>
           <SearchBar />
         </div>
 
         {adsLoading && (
-          <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 max-w-md mx-auto">
+          <div className="flex items-center gap-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3 max-w-md mx-auto">
             <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-blue-800">Fetching ads from Meta Ads Library...</p>
-              <p className="text-xs text-blue-600">This can take 15–30 seconds</p>
+              <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Fetching ads from Meta Ads Library...</p>
+              <p className="text-xs text-blue-600 dark:text-blue-400">This can take 15–30 seconds</p>
             </div>
           </div>
         )}
 
         {!adsLoading && ads.length > 0 && currentBrand && (
-          <p className="text-sm text-gray-600 font-medium">
-            {ads.length} ads found for <span className="text-blue-600">{currentBrand.name}</span>
+          <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+            {ads.length} ads found for <span className="text-blue-600 dark:text-blue-400">{currentBrand.name}</span>
           </p>
         )}
 
