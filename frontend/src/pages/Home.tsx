@@ -1,6 +1,7 @@
 import { SearchBar } from '../components/SearchBar/SearchBar.tsx'
 import { AdGrid } from '../components/AdGrid/AdGrid.tsx'
 import { ThemeToggle } from '../components/ThemeToggle/ThemeToggle.tsx'
+import { AnalysisPanel } from '../components/AnalysisPanel/AnalysisPanel.tsx'
 import { useAppStore } from '../store/appStore.ts'
 import { useTheme } from '../hooks/useTheme.ts'
 
@@ -42,6 +43,8 @@ export function Home() {
 
         <AdGrid />
       </main>
+
+      <AnalysisPanel />
     </div>
   )
 }

@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npm install:*)",
+      "Bash(DOTENV_CONFIG_PATH=.env.example APIFY_API_TOKEN=x ANTHROPIC_API_KEY=x PERPLEXITY_API_KEY=x MONGODB_URI=x npx vitest run tests/unit)",
+      "Bash(npx vitest:*)",
+      "Bash(node -e \":*)",
+      "Bash(mv server.js server.ts)",
+      "Bash(mv src/config/db.js src/config/db.ts)",
+      "Bash(mv src/config/env.js src/config/env.ts)",
+      "Bash(mv src/middleware/errorHandler.js src/middleware/errorHandler.ts)",
+      "Bash(mv src/middleware/timeout.js src/middleware/timeout.ts)",
+      "Bash(cp:*)",
+      "Bash(rm -rf node_modules src public index.html eslint.config.js README.md)",
+      "Bash(npx create-vite@latest . -- --template react-ts --yes)",
+      "Bash(npx create-vite@latest tmp-ts -- --template react-ts)",
+      "Bash(cp -r tmp-ts/. .)",
+      "Bash(rm -rf tmp-ts)",
+      "Bash(npx create-vite@latest frontend-new --template react-ts)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(MONGODB_URI=mongodb://localhost:27017/upspring_test APIFY_API_TOKEN=x ANTHROPIC_API_KEY=x PERPLEXITY_API_KEY=x npx vitest run --config vitest.integration.config.ts)",
+      "Bash(npm run:*)",
+      "Bash(npm test:*)"
+    ]
+  }
+}

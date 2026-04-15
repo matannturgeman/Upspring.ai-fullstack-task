@@ -11,6 +11,9 @@ interface AppState {
   competitors: { name: string; reason: string }[]
   selectedCompetitor: { name: string; reason: string } | null
   analysisMessages: AnalysisMessage[]
+  selectedAdId: string | null
+  analysisLoading: boolean
+  analysisError: string | null
 
   setCurrentBrand: (brand: BrandDto | null) => void
   setAds: (ads: AdDto[]) => void
@@ -23,6 +26,9 @@ interface AppState {
   addMessage: (msg: AnalysisMessage) => void
   updateLastMessage: (id: number, text: string, streaming: boolean) => void
   clearMessages: () => void
+  setSelectedAdId: (id: string | null) => void
+  setAnalysisLoading: (v: boolean) => void
+  setAnalysisError: (e: string | null) => void
   resetSearch: () => void
 }
 
@@ -44,6 +50,9 @@ export const useAppStore = create<AppState>((set) => ({
   competitors: [],
   selectedCompetitor: null,
   analysisMessages: [],
+  selectedAdId: null,
+  analysisLoading: false,
+  analysisError: null,
 
   setCurrentBrand: (brand) => set({ currentBrand: brand }),
   setAds: (ads) => set({ ads }),
@@ -61,6 +70,9 @@ export const useAppStore = create<AppState>((set) => ({
       ),
     })),
   clearMessages: () => set({ analysisMessages: [] }),
+  setSelectedAdId: (id) => set({ selectedAdId: id }),
+  setAnalysisLoading: (v) => set({ analysisLoading: v }),
+  setAnalysisError: (e) => set({ analysisError: e }),
   resetSearch: () => set({
     currentBrand: null,
     ads: [],
@@ -70,5 +82,8 @@ export const useAppStore = create<AppState>((set) => ({
     competitors: [],
     selectedCompetitor: null,
     analysisMessages: [],
+    selectedAdId: null,
+    analysisLoading: false,
+    analysisError: null,
   }),
 }))

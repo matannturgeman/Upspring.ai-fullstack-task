@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import type { AdDto } from '../../types/ad.types.ts'
+import { useAnalysis } from '../../hooks/useAnalysis.ts'
+import { useAppStore } from '../../store/appStore.ts'
 
 interface Props {
   ad: AdDto
@@ -7,6 +9,11 @@ interface Props {
 
 export function AdCard({ ad }: Props) {
   const [imgError, setImgError] = useState(false)
+  const { analyze } = useAnalysis()
+  const { selectedAdId, analysisLoading } = useAppStore(s => ({
+    selectedAdId: s.selectedAdId,
+    analysisLoading: s.analysisLoading,
+  }))
 
   const mediaUrl = ad.thumbnailUrl || ad.imageUrl
   const proxyUrl = mediaUrl
@@ -62,6 +69,18 @@ export function AdCard({ ad }: Props) {
           </span>
           <span className="text-xs text-gray-400 dark:text-gray-600 italic">Performance data unavailable</span>
         </div>
+
+        <button
+          onClick={() => analyze(ad._id)}
+          disabled={analysisLoading}
+          className={`w-full mt-2 py-1.5 text-xs font-medium rounded-lg transition ${
+            selectedAdId === ad._id
+              ? 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-950 hover:text-purple-700 dark:hover:text-purple-300'
+          } disabled:opacity-50`}
+        >
+          {selectedAdId === ad._id && analysisLoading ? 'Analyzing...' : '✦ Analyze with AI'}
+        </button>
       </div>
     </div>
   )
