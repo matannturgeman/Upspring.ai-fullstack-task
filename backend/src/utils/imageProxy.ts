@@ -16,7 +16,7 @@ const ALLOWED_HOSTS = new Set([
 const FBCDN_PATTERN = /^([a-z0-9-]+\.)?fbcdn\.net$/
 const APIFY_PATTERN = /^([a-z0-9-]+\.)?apify\.com$/
 
-function isAllowedUrl(raw: string): boolean {
+export function isAllowedUrl(raw: string): boolean {
   try {
     const { protocol, hostname } = new URL(raw)
     if (protocol !== 'https:') return false
