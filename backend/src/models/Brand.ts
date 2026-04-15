@@ -15,7 +15,7 @@ export interface IBrand {
 
 const BrandSchema = new mongoose.Schema<IBrand>({
   name: { type: String, required: true, index: true },
-  normalizedName: { type: String, required: true, index: true },
+  normalizedName: { type: String, required: true, index: true, unique: true },
   lastFetched: { type: Date, default: Date.now },
   adCount: { type: Number, default: 0 },
   competitors: [{ name: String, reason: String }],

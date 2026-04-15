@@ -24,7 +24,7 @@ interface AppState {
   setCompetitors: (c: { name: string; reason: string }[]) => void
   setSelectedCompetitor: (c: { name: string; reason: string } | null) => void
   addMessage: (msg: AnalysisMessage) => void
-  updateLastMessage: (id: number, text: string, streaming: boolean) => void
+  updateLastMessage: (id: string, text: string, streaming: boolean) => void
   clearMessages: () => void
   setSelectedAdId: (id: string | null) => void
   setAnalysisLoading: (v: boolean) => void
@@ -33,7 +33,7 @@ interface AppState {
 }
 
 export interface AnalysisMessage {
-  id: number
+  id: string
   role: 'user' | 'ai'
   text: string
   streaming?: boolean

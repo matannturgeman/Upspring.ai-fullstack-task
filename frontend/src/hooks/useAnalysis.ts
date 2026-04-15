@@ -1,6 +1,8 @@
+import { useRef } from 'react'
 import { useAppStore } from '../store/appStore.ts'
 
 export function useAnalysis() {
+  const abortRef = useRef<AbortController | null>(null)
   const {
     addMessage,
     updateLastMessage,
@@ -11,12 +13,16 @@ export function useAnalysis() {
   } = useAppStore()
 
   async function analyze(adId: string) {
+    // Cancel any in-flight request
+    abortRef.current?.abort()
+    abortRef.current = new AbortController()
+
     setSelectedAdId(adId)
     setAnalysisLoading(true)
     setAnalysisError(null)
     clearMessages()
 
-    const msgId = Date.now()
+    const msgId = crypto.randomUUID()
     addMessage({ id: msgId, role: 'ai', text: '', streaming: true })
 
     try {
@@ -24,6 +30,7 @@ export function useAnalysis() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adId }),
+        signal: abortRef.current.signal,
       })
 
       if (!res.ok || !res.body) {
@@ -40,9 +47,7 @@ export function useAnalysis() {
         if (done) break
 
         const raw = decoder.decode(value, { stream: true })
-        const lines = raw.split('\n')
-
-        for (const line of lines) {
+        for (const line of raw.split('\n')) {
           if (!line.startsWith('data: ')) continue
           const payload = line.slice(6).trim()
           if (payload === '[DONE]') break
@@ -61,6 +66,7 @@ export function useAnalysis() {
 
       updateLastMessage(msgId, accumulated, false)
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return
       const msg = err instanceof Error ? err.message : 'Unknown error'
       setAnalysisError(msg)
       updateLastMessage(msgId, '', false)
@@ -70,6 +76,7 @@ export function useAnalysis() {
   }
 
   function close() {
+    abortRef.current?.abort()
     setSelectedAdId(null)
     clearMessages()
     setAnalysisError(null)

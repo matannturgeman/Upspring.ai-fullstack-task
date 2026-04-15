@@ -16,4 +16,6 @@ const SearchSessionSchema = new mongoose.Schema<ISearchSession>({
   adsFound: { type: Number, default: 0 },
 }, { timestamps: true })
 
+SearchSessionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 })
+
 export default mongoose.model<ISearchSession>('SearchSession', SearchSessionSchema)

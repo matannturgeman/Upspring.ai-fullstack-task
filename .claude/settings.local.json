@@ -22,7 +22,8 @@
       "Bash(npx eslint:*)",
       "Bash(MONGODB_URI=mongodb://localhost:27017/upspring_test APIFY_API_TOKEN=x ANTHROPIC_API_KEY=x PERPLEXITY_API_KEY=x npx vitest run --config vitest.integration.config.ts)",
       "Bash(npm run:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(node -e \"const p=require\\(''./package.json''\\);console.log\\(p.dependencies[''http-status-codes'']\\)\")"
     ]
   }
 }

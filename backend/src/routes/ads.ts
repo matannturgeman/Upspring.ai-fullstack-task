@@ -1,5 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express'
-import Brand from '../models/Brand.ts'
+import { StatusCodes } from 'http-status-codes'
+import mongoose, { type HydratedDocument } from 'mongoose'
+import Brand, { type IBrand } from '../models/Brand.ts'
 import Ad from '../models/Ad.ts'
 import SearchSession from '../models/SearchSession.ts'
 import { scrapeMetaAds } from '../services/apifyService.ts'
@@ -14,7 +16,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
     const parsed = AdsQuerySchema.safeParse(req.query)
     if (!parsed.success) {
       const missing = parsed.error.issues.some(i => i.path.includes('brand'))
-      res.status(400).json({
+      res.status(StatusCodes.BAD_REQUEST).json({
         error: true,
         message: missing ? 'brand query param required' : parsed.error.issues[0].message,
         code: missing ? 'MISSING_BRAND' : 'INVALID_INPUT',
@@ -25,11 +27,11 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
     const { brand, limit, forceRefresh } = parsed.data
     const normalizedName = brand.toLowerCase()
 
-    // Cache check
+    // Cache check — apply same limit as request
     if (!forceRefresh) {
       const cached = await Brand.findOne({ normalizedName })
       if (cached) {
-        const ads = await Ad.find({ brandId: cached._id }).lean()
+        const ads = await Ad.find({ brandId: cached._id }).lean().limit(limit)
         if (ads.length > 0) {
           res.json({ brand: cached, ads, fromCache: true, empty: false })
           return
@@ -47,40 +49,56 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
         status: 'error',
         errorMessage: (err as Error).message,
       })
-      const error = Object.assign(new Error(`Ads provider error: ${(err as Error).message}`), {
-        status: 502,
+      return next(Object.assign(new Error(`Ads provider error: ${(err as Error).message}`), {
+        status: StatusCodes.BAD_GATEWAY,
         code: 'PROVIDER_ERROR',
-      })
-      return next(error)
+      }))
     }
 
     if (scrapeResult.empty) {
       await SearchSession.findByIdAndUpdate(session._id, { status: 'done', adsFound: 0 })
-      res.json({ brand: null, ads: [], empty: true, message: `No ads found for "${brand}"` })
+      res.json({ brand: null, ads: [], empty: true, message: 'No ads found for this brand' })
       return
     }
 
-    const brandDoc = await Brand.findOneAndUpdate(
-      { normalizedName },
-      { name: brand, normalizedName, lastFetched: new Date(), adCount: scrapeResult.ads.length },
-      { upsert: true, returnDocument: 'after' }
-    )
+    // Atomic brand upsert + ad replacement in a session transaction
+    const dbSession = await mongoose.startSession()
+    let brandDoc: HydratedDocument<IBrand> | null = null
+    let insertedAds: Awaited<ReturnType<typeof Ad.insertMany>> = []
 
-    await Ad.deleteMany({ brandId: brandDoc!._id })
+    try {
+      await dbSession.withTransaction(async () => {
+        const upserted = await Brand.findOneAndUpdate(
+          { normalizedName },
+          { name: brand, normalizedName, lastFetched: new Date(), adCount: scrapeResult.ads.length },
+          { upsert: true, returnDocument: 'after', session: dbSession }
+        )
 
-    const adDocs = scrapeResult.ads.map(raw => ({
-      ...parseApifyAd(raw),
-      brandId: brandDoc!._id,
-    }))
-    const ads = await Ad.insertMany(adDocs)
+        if (!upserted) throw new Error('Failed to upsert brand document')
+        brandDoc = upserted
+
+        await Ad.deleteMany({ brandId: brandDoc._id }, { session: dbSession })
+
+        const adDocs = scrapeResult.ads.map(raw => ({
+          ...parseApifyAd(raw),
+          brandId: brandDoc!._id,
+        }))
+        insertedAds = await Ad.insertMany(adDocs, { session: dbSession })
+      })
+    } finally {
+      await dbSession.endSession()
+    }
+
+    if (!brandDoc) throw new Error('Brand upsert returned null')
+    const finalBrand = brandDoc as HydratedDocument<IBrand>
 
     await SearchSession.findByIdAndUpdate(session._id, {
       status: 'done',
-      brandId: brandDoc!._id,
-      adsFound: ads.length,
+      brandId: finalBrand._id,
+      adsFound: insertedAds.length,
     })
 
-    res.json({ brand: brandDoc, ads, fromCache: false, partial: scrapeResult.partial, empty: false })
+    res.json({ brand: finalBrand, ads: insertedAds, fromCache: false, partial: scrapeResult.partial, empty: false })
   } catch (err) {
     next(err)
   }
@@ -91,7 +109,7 @@ router.get('/:brandId', async (req: Request, res: Response, next: NextFunction):
   try {
     const ads = await Ad.find({ brandId: req.params.brandId }).lean()
     if (!ads.length) {
-      res.status(404).json({ error: true, message: 'No ads found', code: 'NOT_FOUND' })
+      res.status(StatusCodes.NOT_FOUND).json({ error: true, message: 'No ads found', code: 'NOT_FOUND' })
       return
     }
     res.json({ ads })
