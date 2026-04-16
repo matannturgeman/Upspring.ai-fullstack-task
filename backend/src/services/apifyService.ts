@@ -1,4 +1,6 @@
 import { ApifyClient } from 'apify-client'
+import { isMockMode } from '../utils/mockMode.ts'
+import { mockScrapeMetaAds } from '../mocks/apifyMock.ts'
 
 const client = new ApifyClient({ token: process.env.APIFY_API_TOKEN })
 
@@ -15,6 +17,8 @@ export async function scrapeMetaAds(
   brandName: string,
   { limit = 20 }: { limit?: number } = {}
 ): Promise<ScrapeResult> {
+  if (isMockMode()) return mockScrapeMetaAds(brandName, { limit })
+
   const run = await client.actor(ACTOR_ID).call(
     {
       searchTerms: [brandName],
