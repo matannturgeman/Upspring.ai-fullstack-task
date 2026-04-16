@@ -12,7 +12,7 @@ export async function connectDB(): Promise<void> {
     } catch (err) {
       const isLast = attempt === MAX_RETRIES
       console.error(`MongoDB connection attempt ${attempt}/${MAX_RETRIES} failed:`, (err as Error).message)
-      if (isLast) throw new Error(`Failed to connect to MongoDB after ${MAX_RETRIES} attempts`)
+      if (isLast) throw new Error(`Failed to connect to MongoDB after ${MAX_RETRIES} attempts`, { cause: err })
       await new Promise(r => setTimeout(r, RETRY_DELAY_MS * attempt))
     }
   }

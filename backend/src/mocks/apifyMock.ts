@@ -1,4 +1,4 @@
-import type { ScrapeResult } from '../services/apifyService.ts'
+import type { ScrapeResult } from '../scrapers/BaseScraper.ts'
 
 const MOCK_ADS: Record<string, unknown>[] = [
   {

@@ -4,7 +4,7 @@ import { type HydratedDocument } from 'mongoose'
 import Brand, { type IBrand } from '../models/Brand.ts'
 import Ad from '../models/Ad.ts'
 import SearchSession from '../models/SearchSession.ts'
-import { scrapeMetaAds } from '../services/apifyService.ts'
+import { scrapeMetaAds } from '../scrapers/index.ts'
 import { parseApifyAd } from '../utils/apifyParser.ts'
 import { AdsQuerySchema } from '../schemas/ads.schemas.ts'
 
