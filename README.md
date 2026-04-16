@@ -60,5 +60,47 @@ cd frontend && npm test         # component unit tests
 cd frontend && npm run test:e2e # Playwright E2E
 ```
 
+## Deployment
+
+### Backend → Railway
+1. New Project → Deploy from GitHub → set root directory to `backend/`
+2. Add env vars: `MONGODB_URI`, `APIFY_API_TOKEN`, `ANTHROPIC_API_KEY`, `PERPLEXITY_API_KEY`, `FRONTEND_URL`, `NODE_ENV=production`
+3. Railway detects Node.js and uses the `Dockerfile`
+
+### Frontend → Vercel
+1. New Project → Import repo → set root directory to `frontend/`
+2. Add env var: `VITE_API_URL=https://<your-railway-url>`
+3. Update `frontend/src/api/adsApi.ts`: `baseURL: import.meta.env.VITE_API_URL || '/api'`
+
+---
+
+## Tradeoffs & Design Decisions
+
+**Caching** — Ads are stored in MongoDB after first fetch. Second search for same brand returns instantly from DB. `forceRefresh=true` bypasses it. Tradeoff: data can be up to a session stale, but avoids hammering Apify on every keystroke.
+
+**AI context window** — Only the first 15 ads and 10 images are sent to Claude per analysis to stay within token limits and control cost. Very prolific brands may have relevant ads excluded.
+
+**Streaming** — Claude responses stream via SSE so users see tokens as they arrive instead of waiting 10+ seconds for a full response.
+
+**Competitor strategy** — Perplexity is tried first (web-grounded). If it fails, Claude reasons from ad copy. Source is always shown so users can judge confidence.
+
+**No auth** — Demo scope. For production: JWT auth, per-user search history, rate limiting per user rather than per IP.
+
+**MongoDB standalone** — Transactions require a replica set; we use sequential ops (`findOneAndUpdate` → `deleteMany` → `insertMany`) instead. Fine at this scale.
+
+---
+
+## What Would Break First at Scale
+
+| Component | Bottleneck | Fix |
+|---|---|---|
+| Apify scraping | Rate limits + cost | Queue with BullMQ, cache aggressively, pre-fetch popular brands |
+| Claude vision | Cost per image | Resize images before sending, cache AI responses per ad |
+| MongoDB | Single instance | Replica set, read replicas, TTL tuning |
+| SSE connections | Open connections per user | WebSockets or short-poll for horizontal scale |
+| No job queue | Long scrapes block requests | Background jobs (BullMQ/Redis) + polling endpoint |
+
+---
+
 ## Docs
 See [`/docs`](./docs/) for full implementation plans broken down by phase.
