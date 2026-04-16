@@ -83,7 +83,7 @@ export function AdCard({ ad }: Props) {
         <button
           onClick={() => analyze(ad._id)}
           disabled={analysisLoading}
-          aria-label={isAnalyzing ? 'Analyzing this ad with AI' : `Analyze ad${ad.headline ? `: ${ad.headline}` : ''} with AI`}
+          aria-label={isAnalyzing ? 'Analyzing with AI' : `Analyze with AI${ad.headline ? ` – ${ad.headline}` : ''}`}
           aria-pressed={isSelected}
           className={`w-full mt-auto pt-2 py-1.5 text-xs font-medium rounded-lg transition focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${
             isSelected

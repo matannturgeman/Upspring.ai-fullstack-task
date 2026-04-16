@@ -11,10 +11,10 @@ const MOCK_ADS = {
 
 test.describe('AI Analysis flow', () => {
   test.beforeEach(async ({ page }) => {
+    await page.goto('/')
     await page.route(ADS_ROUTE, route =>
       route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_ADS) })
     )
-    await page.goto('/')
     await page.getByLabel(/Brand name/i).fill('Nike')
     await page.getByRole('button', { name: /^Search$/i }).click()
     await expect(page.getByTestId('ad-card')).toBeVisible()

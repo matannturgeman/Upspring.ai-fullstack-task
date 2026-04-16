@@ -73,6 +73,7 @@ test.describe('Accessibility', () => {
 
     await page.getByLabel(/Brand name/i).fill('Nike')
     await page.getByRole('button', { name: /^Search$/i }).click()
+    await expect(page.getByTestId('ad-card')).toBeVisible()
     await page.getByRole('button', { name: /Analyze with AI/i }).click()
 
     const dialog = page.getByRole('dialog')
