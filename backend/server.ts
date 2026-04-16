@@ -19,7 +19,7 @@ const app = express()
 const REQUEST_TIMEOUT_MS = 30_000
 const JSON_BODY_LIMIT = '50kb'
 const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX = 30
+const RATE_LIMIT_MAX = process.env.NODE_ENV === 'production' ? 30 : 500
 
 app.use(helmet())
 app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true, methods: ['GET', 'POST'] }))

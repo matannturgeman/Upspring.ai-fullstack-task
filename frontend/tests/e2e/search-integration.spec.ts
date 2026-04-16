@@ -7,30 +7,30 @@
  */
 import { test, expect } from '@playwright/test'
 
+// Unique brand name avoids race conditions when api-health.spec runs Nike searches in parallel
+const BRAND = 'Puma'
+
 test.describe('Full-stack search integration', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
   })
 
   test('search returns real ads from backend pipeline', async ({ page }) => {
-    // Use forceRefresh to bypass cache and exercise the full pipeline
-    await page.getByLabel(/Brand name/i).fill('Nike')
+    await page.getByLabel(/Brand name/i).fill(BRAND)
     await page.getByRole('button', { name: /^Search$/i }).click()
 
-    // Ads render (real DB write + read)
     await expect(page.getByTestId('ad-card').first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText(/ads found for/i)).toBeVisible()
-    await expect(page.getByText('Nike')).toBeVisible()
+    await expect(page.getByText(BRAND).first()).toBeVisible()
   })
 
   test('second search for same brand uses cache', async ({ page }) => {
-    // First search — populates DB (or hits existing cache)
-    await page.getByLabel(/Brand name/i).fill('Nike')
+    await page.getByLabel(/Brand name/i).fill(BRAND)
     await page.getByRole('button', { name: /^Search$/i }).click()
     await expect(page.getByTestId('ad-card').first()).toBeVisible({ timeout: 15_000 })
 
     // Second search — should show cached badge
-    await page.getByLabel(/Brand name/i).fill('Nike')
+    await page.getByLabel(/Brand name/i).fill(BRAND)
     await page.getByRole('button', { name: /^Search$/i }).click()
     await expect(page.getByTestId('ad-card').first()).toBeVisible({ timeout: 5_000 })
     await expect(page.getByText(/cached results/i)).toBeVisible()
