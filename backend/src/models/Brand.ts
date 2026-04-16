@@ -23,4 +23,4 @@ const BrandSchema = new mongoose.Schema<IBrand>({
 
 BrandSchema.index({ lastFetched: 1 }, { expireAfterSeconds: 3600 })
 
-export default mongoose.model<IBrand>('Brand', BrandSchema)
+export default (mongoose.models.Brand as mongoose.Model<IBrand>) ?? mongoose.model<IBrand>('Brand', BrandSchema)

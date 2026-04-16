@@ -41,9 +41,8 @@ export class ScrapingBeeScraper extends BaseScraper {
     const payload = (data.payload as Record<string, unknown>) ?? {}
     const results = (payload.results as Record<string, unknown>[]) ?? []
 
-    if (results.length === 0) return { ads: [], partial: false, empty: true }
+    if (results.length === 0) return { ads: [], partial: false, empty: true, scraper: this.name }
 
-    // Normalize to the same shape as ApifyScraper output so apifyParser still works
     const ads = results.map(r => ({
       id: r.adArchiveID ?? r.adid,
       page_name: r.pageName ?? brandName,
@@ -60,6 +59,6 @@ export class ScrapingBeeScraper extends BaseScraper {
       status: r.isActive ? 'ACTIVE' : 'INACTIVE',
     }))
 
-    return { ads, partial: ads.length < limit, empty: false }
+    return { ads, partial: ads.length < limit, empty: false, scraper: this.name }
   }
 }

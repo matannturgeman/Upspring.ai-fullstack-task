@@ -58,5 +58,5 @@ export async function mockScrapeMetaAds(
     page_name: brandName,
     ad_creative_link_titles: [(ad as { ad_creative_link_titles: string[] }).ad_creative_link_titles[0].replace('Nike', brandName)],
   }))
-  return { ads, partial: false, empty: false }
+  return { ads, partial: false, empty: false, scraper: 'mock' }
 }

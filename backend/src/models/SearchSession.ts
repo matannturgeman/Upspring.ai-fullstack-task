@@ -18,4 +18,4 @@ const SearchSessionSchema = new mongoose.Schema<ISearchSession>({
 
 SearchSessionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 })
 
-export default mongoose.model<ISearchSession>('SearchSession', SearchSessionSchema)
+export default (mongoose.models.SearchSession as mongoose.Model<ISearchSession>) ?? mongoose.model<ISearchSession>('SearchSession', SearchSessionSchema)

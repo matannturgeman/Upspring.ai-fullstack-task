@@ -22,13 +22,14 @@ export class ApifyScraper extends BaseScraper {
     const { items } = await this.client.dataset(run.defaultDatasetId).listItems()
 
     if (!items || items.length === 0) {
-      return { ads: [], partial: false, empty: true }
+      return { ads: [], partial: false, empty: true, scraper: this.name }
     }
 
     return {
       ads: items as Record<string, unknown>[],
       partial: items.length < limit,
       empty: false,
+      scraper: this.name,
     }
   }
 }

@@ -38,9 +38,8 @@ export class RapidApiScraper extends BaseScraper {
       (data.results as Record<string, unknown>[]) ??
       (Array.isArray(data) ? (data as Record<string, unknown>[]) : [])
 
-    if (items.length === 0) return { ads: [], partial: false, empty: true }
+    if (items.length === 0) return { ads: [], partial: false, empty: true, scraper: this.name }
 
-    // Normalize to the same shape as ApifyScraper so apifyParser still works
     const ads = items.map(r => ({
       id: r.ad_archive_id ?? r.id,
       page_name: r.page_name ?? brandName,
@@ -55,6 +54,6 @@ export class RapidApiScraper extends BaseScraper {
       status: r.status ?? (r.is_active ? 'ACTIVE' : 'INACTIVE'),
     }))
 
-    return { ads, partial: ads.length < limit, empty: false }
+    return { ads, partial: ads.length < limit, empty: false, scraper: this.name }
   }
 }

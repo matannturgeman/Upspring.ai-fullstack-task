@@ -32,7 +32,10 @@
       "Bash(netstat -ano)",
       "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 27017 -ErrorAction SilentlyContinue | Select-Object LocalPort,State,OwningProcess; Get-Service -Name MongoDB* -ErrorAction SilentlyContinue | Select-Object Name,Status\")",
       "Bash(docker compose:*)",
-      "Bash(docker ps:*)"
+      "Bash(docker ps:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }

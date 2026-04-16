@@ -2,6 +2,7 @@ export type ScrapeResult = {
   ads: Record<string, unknown>[]
   partial: boolean
   empty: boolean
+  scraper: string
 }
 
 export interface ScrapeOptions {
