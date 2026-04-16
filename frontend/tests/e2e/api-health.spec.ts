@@ -18,10 +18,40 @@ test.describe('Backend API', () => {
     expect(body.code).toBe('MISSING_BRAND')
   })
 
-  test('GET /api/ads with brand param starts a search', async ({ request }) => {
-    // Hits the real API — just check it doesn't crash (may timeout / return real data)
-    const res = await request.get(`${API}/api/ads?brand=TestBrand&limit=1`, { timeout: 25_000 })
-    expect([200, 502, 504]).toContain(res.status())
+  test('GET /api/ads with brand returns 200 with ads array (MOCK_LLM=true required)', async ({ request }) => {
+    const res = await request.get(`${API}/api/ads?brand=Nike&limit=3`, { timeout: 15_000 })
+    expect(res.status()).toBe(200)
+    const body = await res.json()
+    expect(body.empty).toBe(false)
+    expect(Array.isArray(body.ads)).toBe(true)
+    expect(body.ads.length).toBeGreaterThan(0)
+    expect(body.brand).toBeTruthy()
+    expect(body.brand.name).toBeTruthy()
+  })
+
+  test('POST /api/competitors/find without params returns 400', async ({ request }) => {
+    const res = await request.post(`${API}/api/competitors/find`, { data: {} })
+    expect(res.status()).toBe(400)
+    const body = await res.json()
+    expect(body.code).toBe('MISSING_PARAMS')
+  })
+
+  test('POST /api/competitors/find with valid brand returns competitors (MOCK_LLM=true required)', async ({ request }) => {
+    // First get a real brandId from the DB via a search
+    const adsRes = await request.get(`${API}/api/ads?brand=Nike&limit=1`, { timeout: 15_000 })
+    expect(adsRes.status()).toBe(200)
+    const { brand } = await adsRes.json()
+
+    const res = await request.post(`${API}/api/competitors/find`, {
+      data: { brandName: brand.name, brandId: String(brand._id) },
+      timeout: 10_000,
+    })
+    expect(res.status()).toBe(200)
+    const body = await res.json()
+    expect(Array.isArray(body.competitors)).toBe(true)
+    expect(body.competitors.length).toBeGreaterThan(0)
+    expect(body.competitors[0]).toMatchObject({ name: expect.any(String), reason: expect.any(String) })
+    expect(body.source).toBeTruthy()
   })
 
   test('POST /api/analysis without adId returns 400 INVALID_INPUT', async ({ request }) => {
