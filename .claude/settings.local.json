@@ -28,7 +28,11 @@
       "Bash(curl -s http://localhost:5173 -o /dev/null -w \"%{http_code}\")",
       "Bash(curl -s http://localhost:4000/health -w \"%{http_code}\")",
       "Bash(git -C C:/Dev/Upspring.ai diff HEAD --stat)",
-      "Bash(git -C C:/Dev/Upspring.ai status)"
+      "Bash(git -C C:/Dev/Upspring.ai status)",
+      "Bash(netstat -ano)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 27017 -ErrorAction SilentlyContinue | Select-Object LocalPort,State,OwningProcess; Get-Service -Name MongoDB* -ErrorAction SilentlyContinue | Select-Object Name,Status\")",
+      "Bash(docker compose:*)",
+      "Bash(docker ps:*)"
     ]
   }
 }
