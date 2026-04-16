@@ -43,8 +43,12 @@ export function AdCard({ ad }: Props) {
           <span className="text-gray-400 dark:text-gray-600 text-sm" aria-label="No preview available">No preview available</span>
         )}
         {ad.videoUrl && (
-          <span aria-label="Video ad" className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded font-medium">
-            VIDEO
+          <span
+            aria-label={mediaUrl ? 'Video ad — thumbnail analyzed' : 'Video ad — no thumbnail, visual analysis limited'}
+            title={mediaUrl ? 'Video ad — thumbnail used as visual proxy for AI analysis' : 'Video ad — no thumbnail available; AI analysis based on copy only'}
+            className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded font-medium"
+          >
+            {mediaUrl ? 'VIDEO' : 'VIDEO · no thumbnail'}
           </span>
         )}
       </div>

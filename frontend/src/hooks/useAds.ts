@@ -5,6 +5,8 @@ export function useAds() {
   const {
     setCurrentBrand, setAds, setAdsLoading,
     setAdsError, setAdsEmpty, setFromCache, clearMessages,
+    clearChatMessages, setChatOpen,
+    setCompetitors, setSelectedCompetitor,
   } = useAppStore()
 
   async function search(brandName: string, options: { forceRefresh?: boolean } = {}) {
@@ -12,6 +14,10 @@ export function useAds() {
     setAdsError(null)
     setAdsEmpty(false)
     clearMessages()
+    clearChatMessages()
+    setChatOpen(false)
+    setCompetitors([])
+    setSelectedCompetitor(null)
 
     try {
       const result = await fetchAds(brandName, options)

@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { isMockLLM } from '../utils/mockMode.ts'
-import { streamMockAnalysis } from '../mocks/claudeMock.ts'
+import { streamMockAnalysis, streamMockChat } from '../mocks/claudeMock.ts'
 
 export interface AdInput {
   platform: string
@@ -35,6 +35,86 @@ export class ClaudeService {
       max_tokens: 1024,
       stream: true,
       messages: [{ role: 'user', content }],
+    })
+
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        yield event.delta.text
+      }
+    }
+  }
+
+  async *streamChat(
+    brandName: string,
+    ads: AdInput[],
+    messages: { role: 'user' | 'assistant'; content: string }[]
+  ): AsyncGenerator<string> {
+    if (isMockLLM()) {
+      yield* streamMockChat()
+      return
+    }
+
+    // Prioritise active ads, cap at 20 for token budget
+    const contextAds = [...ads]
+      .sort((a, b) => {
+        if (a.status === 'ACTIVE' && b.status !== 'ACTIVE') return -1
+        if (b.status === 'ACTIVE' && a.status !== 'ACTIVE') return 1
+        return 0
+      })
+      .slice(0, 20)
+
+    const adContext = contextAds.map((ad, i) => {
+      const hasThumbnail = Boolean(ad.thumbnailUrl || ad.imageUrl)
+      const mediaNote = ad.videoUrl
+        ? (hasThumbnail ? '[Video — thumbnail analyzed as visual proxy]' : '[Video — no thumbnail; visual analysis limited to copy]')
+        : null
+      return [
+        `--- Ad ${i + 1} ---`,
+        `Platform: ${ad.platform} | Status: ${ad.status}`,
+        mediaNote,
+        ad.headline ? `Headline: ${ad.headline}` : null,
+        ad.primaryText ? `Primary Text: ${ad.primaryText.slice(0, 300)}` : null,
+      ].filter(Boolean).join('\n')
+    }).join('\n\n')
+
+    const system = `You are an AI creative analyst for brand advertising intelligence.
+You have access to a curated sample of ${contextAds.length} ads from "${brandName}" \
+(${ads.length} total in library — active ads prioritised). \
+For video ads, the thumbnail frame is used as a visual proxy where available.
+
+${adContext}
+
+Answer questions analytically with specific examples from these ads. Be concise and actionable.`
+
+    // Inject up to 10 images (thumbnails or stills) into first user message
+    const imageUrls = contextAds
+      .map(ad => ad.thumbnailUrl || ad.imageUrl)
+      .filter((url): url is string => Boolean(url))
+      .slice(0, 10)
+
+    type AntMessage = Anthropic.MessageParam
+    const anthropicMessages: AntMessage[] = messages.map((m, i) => {
+      if (m.role === 'user' && i === 0 && imageUrls.length > 0) {
+        return {
+          role: 'user',
+          content: [
+            ...imageUrls.map(url => ({
+              type: 'image' as const,
+              source: { type: 'url' as const, url },
+            })),
+            { type: 'text' as const, text: m.content },
+          ],
+        }
+      }
+      return { role: m.role, content: m.content }
+    })
+
+    const stream = await this.client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      system,
+      stream: true,
+      messages: anthropicMessages,
     })
 
     for await (const event of stream) {
@@ -88,11 +168,16 @@ ${adContext}`,
   }
 
   private buildPrompt(ad: AdInput): string {
+    const imageUrl = ad.thumbnailUrl || ad.imageUrl
+    const mediaNote = ad.videoUrl
+      ? (imageUrl ? 'Media: Video ad — the image above is the thumbnail frame analyzed as a visual proxy.' : 'Media: Video ad — no thumbnail available; visual analysis limited to copy only.')
+      : ''
     return [
       'Analyze this Meta ad for a brand intelligence report.',
       '',
       `Platform: ${ad.platform}`,
       `Status: ${ad.status}`,
+      mediaNote,
       ad.headline ? `Headline: ${ad.headline}` : '',
       ad.primaryText ? `Primary Text: ${ad.primaryText}` : '',
       '',

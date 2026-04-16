@@ -3,11 +3,12 @@ import { AdGrid } from '../components/AdGrid/AdGrid.tsx'
 import { ThemeToggle } from '../components/ThemeToggle/ThemeToggle.tsx'
 import { AnalysisPanel } from '../components/AnalysisPanel/AnalysisPanel.tsx'
 import { CompetitorPanel } from '../components/CompetitorPanel/CompetitorPanel.tsx'
+import { BrandChat } from '../components/BrandChat/BrandChat.tsx'
 import { useAppStore } from '../store/appStore.ts'
 import { useTheme } from '../hooks/useTheme.ts'
 
 export function Home() {
-  const { ads, currentBrand, adsLoading } = useAppStore()
+  const { ads, currentBrand, adsLoading, setChatOpen } = useAppStore()
   const { theme, toggle } = useTheme()
 
   return (
@@ -44,9 +45,18 @@ export function Home() {
         )}
 
         {!adsLoading && ads.length > 0 && currentBrand && (
-          <p aria-live="polite" className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-            {ads.length} ads found for <span className="text-blue-600 dark:text-blue-400">{currentBrand.name}</span>
-          </p>
+          <div className="flex items-center justify-between">
+            <p aria-live="polite" className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              {ads.length} ads found for <span className="text-blue-600 dark:text-blue-400">{currentBrand.name}</span>
+            </p>
+            <button
+              onClick={() => setChatOpen(true)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+            >
+              <span aria-hidden="true">✦</span>
+              Ask AI about these ads
+            </button>
+          </div>
         )}
 
         {!adsLoading && ads.length > 0 && currentBrand && (
@@ -66,6 +76,7 @@ export function Home() {
       </main>
 
       <AnalysisPanel />
+      <BrandChat />
     </div>
   )
 }

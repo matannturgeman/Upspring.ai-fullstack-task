@@ -78,7 +78,7 @@ cd frontend && npm run test:e2e # Playwright E2E
 
 **Caching** — Ads are stored in MongoDB after first fetch. Second search for same brand returns instantly from DB. `forceRefresh=true` bypasses it. Tradeoff: data can be up to a session stale, but avoids hammering Apify on every keystroke.
 
-**AI context window** — Only the first 15 ads and 10 images are sent to Claude per analysis to stay within token limits and control cost. Very prolific brands may have relevant ads excluded.
+**AI context window** — Up to 20 ads (active ones prioritised) and up to 10 thumbnail images are sent per chat request. Primary text is truncated at 300 characters per ad. The system prompt tells Claude how many ads were sampled vs. the total library size. Very prolific brands may have some ads excluded.
 
 **Streaming** — Claude responses stream via SSE so users see tokens as they arrive instead of waiting 10+ seconds for a full response.
 
@@ -99,6 +99,16 @@ cd frontend && npm run test:e2e # Playwright E2E
 | MongoDB | Single instance | Replica set, read replicas, TTL tuning |
 | SSE connections | Open connections per user | WebSockets or short-poll for horizontal scale |
 | No job queue | Long scrapes block requests | Background jobs (BullMQ/Redis) + polling endpoint |
+
+---
+
+---
+
+## Known Limitations
+
+**Video analysis** — Claude's API does not accept video files or URLs; only images are supported. For video ads, the thumbnail frame (`video_preview_image_url` from the Apify snapshot) is sent as a visual proxy. When no thumbnail is available the AI analysis relies on copy only. The ad card and AI prompts both surface this transparently. See [`docs/09-gap-video-analysis.md`](./docs/09-gap-video-analysis.md) for the full discussion.
+
+**Ad library coverage** — Apify scrapes the public Meta Ads Library. Ads that are not publicly visible, very recent, or region-restricted may be missing or incomplete.
 
 ---
 

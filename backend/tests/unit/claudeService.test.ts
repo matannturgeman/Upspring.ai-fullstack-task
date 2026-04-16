@@ -7,6 +7,10 @@ vi.mock('../../src/mocks/claudeMock.ts', () => ({
     yield 'analysis '
     yield 'complete.'
   },
+  streamMockChat: async function* () {
+    yield 'Urgency '
+    yield 'dominates.'
+  },
 }))
 
 import { isMockLLM } from '../../src/utils/mockMode.ts'
@@ -21,6 +25,41 @@ const ad = {
   videoUrl: undefined,
   thumbnailUrl: undefined,
 }
+
+const ads = [ad]
+const messages = [{ role: 'user' as const, content: 'What patterns do you see?' }]
+
+describe('ClaudeService.streamChat', () => {
+  const service = new ClaudeService()
+
+  beforeEach(() => vi.clearAllMocks())
+
+  it('yields mock tokens in mock mode', async () => {
+    vi.mocked(isMockLLM).mockReturnValue(true)
+    const chunks: string[] = []
+    for await (const chunk of service.streamChat('Nike', ads, messages)) {
+      chunks.push(chunk)
+    }
+    expect(chunks).toEqual(['Urgency ', 'dominates.'])
+  })
+
+  it('yields at least one chunk in mock mode', async () => {
+    vi.mocked(isMockLLM).mockReturnValue(true)
+    const gen = service.streamChat('Nike', ads, messages)
+    const first = await gen.next()
+    expect(first.done).toBe(false)
+    expect(typeof first.value).toBe('string')
+  })
+
+  it('works with empty ads array in mock mode', async () => {
+    vi.mocked(isMockLLM).mockReturnValue(true)
+    const chunks: string[] = []
+    for await (const chunk of service.streamChat('Nike', [], messages)) {
+      chunks.push(chunk)
+    }
+    expect(chunks.length).toBeGreaterThan(0)
+  })
+})
 
 describe('ClaudeService.streamAnalysis', () => {
   const service = new ClaudeService()

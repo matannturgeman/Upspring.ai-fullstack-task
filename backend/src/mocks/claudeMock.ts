@@ -19,6 +19,14 @@ The CTA is direct and action-oriented. It creates a sense of loss aversion ("tod
 Strengths: clear hierarchy, benefit-led copy, strong urgency mechanism.
 Opportunity: A/B test the headline with social proof (e.g. "10,000 customers chose this") to see if credibility signals improve conversion rate at scale.`
 
+export async function* streamMockChat(): AsyncGenerator<string> {
+  const text = 'The most common messaging angle is **urgency** — several ads use "limited time" framing. Across creatives, short punchy headlines dominate, paired with benefit-led primary text. The target audience skews 25–44 with demonstrated purchase intent.'
+  for (const token of text.split(/(\s+)/)) {
+    if (token) yield token
+    await new Promise(r => setTimeout(r, 15))
+  }
+}
+
 export async function* streamMockAnalysis(): AsyncGenerator<string> {
   const tokens = MOCK_ANALYSIS.split(/(\s+)/).filter(Boolean)
   for (const token of tokens) {
