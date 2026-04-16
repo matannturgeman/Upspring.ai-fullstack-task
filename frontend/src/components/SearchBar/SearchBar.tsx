@@ -35,7 +35,6 @@ export function SearchBar() {
       <button
         type="submit"
         disabled={adsLoading || !input.trim()}
-        aria-label={adsLoading ? 'Searching, please wait' : 'Search brand ads'}
         className="px-6 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg disabled:opacity-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
       >
         {adsLoading ? 'Searching...' : 'Search'}

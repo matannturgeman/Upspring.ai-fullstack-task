@@ -23,7 +23,12 @@
       "Bash(MONGODB_URI=mongodb://localhost:27017/upspring_test APIFY_API_TOKEN=x ANTHROPIC_API_KEY=x PERPLEXITY_API_KEY=x npx vitest run --config vitest.integration.config.ts)",
       "Bash(npm run:*)",
       "Bash(npm test:*)",
-      "Bash(node -e \"const p=require\\(''./package.json''\\);console.log\\(p.dependencies[''http-status-codes'']\\)\")"
+      "Bash(node -e \"const p=require\\(''./package.json''\\);console.log\\(p.dependencies[''http-status-codes'']\\)\")",
+      "Bash(npx playwright:*)",
+      "Bash(curl -s http://localhost:5173 -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:4000/health -w \"%{http_code}\")",
+      "Bash(git -C C:/Dev/Upspring.ai diff HEAD --stat)",
+      "Bash(git -C C:/Dev/Upspring.ai status)"
     ]
   }
 }
