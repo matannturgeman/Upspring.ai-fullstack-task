@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import mongoose, { type HydratedDocument } from 'mongoose'
+import { type HydratedDocument } from 'mongoose'
 import Brand, { type IBrand } from '../models/Brand.ts'
 import Ad from '../models/Ad.ts'
 import SearchSession from '../models/SearchSession.ts'
@@ -61,35 +61,18 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
       return
     }
 
-    // Atomic brand upsert + ad replacement in a session transaction
-    const dbSession = await mongoose.startSession()
-    let brandDoc: HydratedDocument<IBrand> | null = null
-    let insertedAds: Awaited<ReturnType<typeof Ad.insertMany>> = []
-
-    try {
-      await dbSession.withTransaction(async () => {
-        const upserted = await Brand.findOneAndUpdate(
-          { normalizedName },
-          { name: brand, normalizedName, lastFetched: new Date(), adCount: scrapeResult.ads.length },
-          { upsert: true, returnDocument: 'after', session: dbSession }
-        )
-
-        if (!upserted) throw new Error('Failed to upsert brand document')
-        brandDoc = upserted
-
-        await Ad.deleteMany({ brandId: brandDoc._id }, { session: dbSession })
-
-        const adDocs = scrapeResult.ads.map(raw => ({
-          ...parseApifyAd(raw),
-          brandId: brandDoc!._id,
-        }))
-        insertedAds = await Ad.insertMany(adDocs, { session: dbSession })
-      })
-    } finally {
-      await dbSession.endSession()
-    }
-
+    const brandDoc = await Brand.findOneAndUpdate(
+      { normalizedName },
+      { name: brand, normalizedName, lastFetched: new Date(), adCount: scrapeResult.ads.length },
+      { upsert: true, returnDocument: 'after' }
+    )
     if (!brandDoc) throw new Error('Brand upsert returned null')
+
+    await Ad.deleteMany({ brandId: brandDoc._id })
+
+    const adDocs = scrapeResult.ads.map(raw => ({ ...parseApifyAd(raw), brandId: brandDoc._id }))
+    const insertedAds = await Ad.insertMany(adDocs)
+
     const finalBrand = brandDoc as HydratedDocument<IBrand>
 
     await SearchSession.findByIdAndUpdate(session._id, {
