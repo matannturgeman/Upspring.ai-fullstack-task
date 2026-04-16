@@ -2,6 +2,7 @@ import { SearchBar } from '../components/SearchBar/SearchBar.tsx'
 import { AdGrid } from '../components/AdGrid/AdGrid.tsx'
 import { ThemeToggle } from '../components/ThemeToggle/ThemeToggle.tsx'
 import { AnalysisPanel } from '../components/AnalysisPanel/AnalysisPanel.tsx'
+import { CompetitorPanel } from '../components/CompetitorPanel/CompetitorPanel.tsx'
 import { useAppStore } from '../store/appStore.ts'
 import { useTheme } from '../hooks/useTheme.ts'
 
@@ -48,9 +49,20 @@ export function Home() {
           </p>
         )}
 
-        <section aria-label="Ad results">
-          <AdGrid />
-        </section>
+        {!adsLoading && ads.length > 0 && currentBrand && (
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
+            <section aria-label="Ad results">
+              <AdGrid />
+            </section>
+            <CompetitorPanel />
+          </div>
+        )}
+
+        {(adsLoading || ads.length === 0) && (
+          <section aria-label="Ad results">
+            <AdGrid />
+          </section>
+        )}
       </main>
 
       <AnalysisPanel />
