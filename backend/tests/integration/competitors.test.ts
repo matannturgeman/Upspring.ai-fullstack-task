@@ -1,44 +1,25 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, afterEach } from 'vitest'
 import request from 'supertest'
 import mongoose from 'mongoose'
 import app from '../../server.ts'
-import { PerplexityService } from '../../src/services/PerplexityService.ts'
-import { ClaudeService } from '../../src/services/ClaudeService.ts'
 import Brand from '../../src/models/Brand.ts'
 
-vi.mock('../../src/services/PerplexityService.ts')
-vi.mock('../../src/services/ClaudeService.ts')
-vi.mock('../../src/utils/mockMode.ts', () => ({ isMockLLM: () => false, isMockScraper: () => false }))
-
-const mockSearchCompetitors = vi.fn()
-const mockFindCompetitorsFromAds = vi.fn()
-
-beforeEach(() => {
-  vi.clearAllMocks()
-  vi.mocked(PerplexityService).mockImplementation(
-    () => ({ searchCompetitors: mockSearchCompetitors }) as unknown as PerplexityService,
-  )
-  vi.mocked(ClaudeService).mockImplementation(
-    () =>
-      ({
-        findCompetitorsFromAds: mockFindCompetitorsFromAds,
-        streamChat: vi.fn(),
-        streamAnalysis: vi.fn(),
-        extractFields: vi.fn().mockResolvedValue(null),
-      }) as unknown as ClaudeService,
-  )
-})
+// Integration tests run with MOCK_LLM=true (test env default).
+// We test HTTP validation, cache hit/miss logic, and DB persistence.
+// CompetitorService unit tests cover the Perplexity → Claude fallback.
 
 afterEach(async () => {
   await Brand.deleteMany({})
 })
 
-const MOCK_COMPETITORS = [
+const CACHED_COMPETITORS = [
   { name: 'Adidas', reason: 'Direct competitor in athletic footwear' },
   { name: 'Puma', reason: 'Competes in sportswear market' },
 ]
 
-async function createTestBrand(overrides: Partial<{ competitorsFetchedAt: Date; competitors: typeof MOCK_COMPETITORS }> = {}) {
+async function createBrand(
+  overrides: Partial<{ competitorsFetchedAt: Date; competitors: typeof CACHED_COMPETITORS }> = {},
+) {
   return Brand.create({
     name: 'Nike',
     normalizedName: 'nike',
@@ -66,31 +47,26 @@ describe('POST /api/competitors/find', () => {
 
   it('returns 400 when brandName is missing', async () => {
     const fakeId = new mongoose.Types.ObjectId().toString()
-    const res = await request(app)
-      .post('/api/competitors/find')
-      .send({ brandId: fakeId })
+    const res = await request(app).post('/api/competitors/find').send({ brandId: fakeId })
     expect(res.status).toBe(400)
     expect(res.body.error).toBe('INVALID_INPUT')
   })
 
-  it('fetches fresh competitors via Perplexity when no cache exists', async () => {
-    mockSearchCompetitors.mockResolvedValue(MOCK_COMPETITORS)
-    const brand = await createTestBrand()
+  it('fetches fresh competitors when no cache exists', async () => {
+    const brand = await createBrand()
 
     const res = await request(app)
       .post('/api/competitors/find')
       .send({ brandName: 'Nike', brandId: brand._id.toString() })
 
     expect(res.status).toBe(200)
-    expect(res.body.competitors).toHaveLength(2)
-    expect(res.body.competitors[0].name).toBe('Adidas')
-    expect(res.body.source).toBe('perplexity')
-    expect(mockSearchCompetitors).toHaveBeenCalledWith('Nike')
+    expect(res.body.competitors.length).toBeGreaterThan(0)
+    expect(res.body.source).not.toBe('cache')
   })
 
   it('returns cached competitors when competitorsFetchedAt is fresh', async () => {
-    const brand = await createTestBrand({
-      competitors: MOCK_COMPETITORS,
+    const brand = await createBrand({
+      competitors: CACHED_COMPETITORS,
       competitorsFetchedAt: new Date(),
     })
 
@@ -99,15 +75,14 @@ describe('POST /api/competitors/find', () => {
       .send({ brandName: 'Nike', brandId: brand._id.toString() })
 
     expect(res.status).toBe(200)
-    expect(res.body.competitors).toHaveLength(2)
     expect(res.body.source).toBe('cache')
-    expect(mockSearchCompetitors).not.toHaveBeenCalled()
+    expect(res.body.competitors).toHaveLength(2)
+    expect(res.body.competitors[0].name).toBe('Adidas')
   })
 
   it('re-fetches when cache is stale', async () => {
-    mockSearchCompetitors.mockResolvedValue(MOCK_COMPETITORS)
-    const staleDate = new Date(Date.now() - 1_000_000) // well beyond any TTL
-    const brand = await createTestBrand({
+    const staleDate = new Date(Date.now() - 1_000_000)
+    const brand = await createBrand({
       competitors: [{ name: 'OldCompetitor', reason: 'Stale' }],
       competitorsFetchedAt: staleDate,
     })
@@ -117,13 +92,11 @@ describe('POST /api/competitors/find', () => {
       .send({ brandName: 'Nike', brandId: brand._id.toString() })
 
     expect(res.status).toBe(200)
-    expect(res.body.source).toBe('perplexity')
-    expect(mockSearchCompetitors).toHaveBeenCalledOnce()
+    expect(res.body.source).not.toBe('cache')
   })
 
-  it('re-fetches when cache is fresh but competitors array is empty', async () => {
-    mockSearchCompetitors.mockResolvedValue(MOCK_COMPETITORS)
-    const brand = await createTestBrand({
+  it('re-fetches when timestamp is fresh but competitors array is empty', async () => {
+    const brand = await createBrand({
       competitors: [],
       competitorsFetchedAt: new Date(),
     })
@@ -133,35 +106,35 @@ describe('POST /api/competitors/find', () => {
       .send({ brandName: 'Nike', brandId: brand._id.toString() })
 
     expect(res.status).toBe(200)
-    expect(res.body.source).toBe('perplexity')
-    expect(mockSearchCompetitors).toHaveBeenCalledOnce()
+    expect(res.body.source).not.toBe('cache')
   })
 
   it('persists competitors and competitorsFetchedAt after fresh fetch', async () => {
-    mockSearchCompetitors.mockResolvedValue(MOCK_COMPETITORS)
-    const brand = await createTestBrand()
+    const brand = await createBrand()
 
     await request(app)
       .post('/api/competitors/find')
       .send({ brandName: 'Nike', brandId: brand._id.toString() })
 
     const updated = await Brand.findById(brand._id).lean()
-    expect(updated!.competitors).toHaveLength(2)
+    expect(updated!.competitors.length).toBeGreaterThan(0)
     expect(updated!.competitorsFetchedAt).toBeTruthy()
     expect(updated!.competitorsFetchedAt!.getTime()).toBeGreaterThan(Date.now() - 5000)
   })
 
-  it('falls back to Claude when Perplexity fails', async () => {
-    mockSearchCompetitors.mockRejectedValue(new Error('Perplexity unavailable'))
-    mockFindCompetitorsFromAds.mockResolvedValue(MOCK_COMPETITORS)
-    const brand = await createTestBrand()
+  it('does not update competitorsFetchedAt when returning from cache', async () => {
+    const originalDate = new Date(Date.now() - 60_000) // 1 min ago
+    const brand = await createBrand({
+      competitors: CACHED_COMPETITORS,
+      competitorsFetchedAt: originalDate,
+    })
 
-    const res = await request(app)
+    await request(app)
       .post('/api/competitors/find')
       .send({ brandName: 'Nike', brandId: brand._id.toString() })
 
-    expect(res.status).toBe(200)
-    expect(res.body.source).toBe('claude')
-    expect(res.body.competitors).toHaveLength(2)
+    const updated = await Brand.findById(brand._id).lean()
+    // competitorsFetchedAt should NOT be updated — cache was returned as-is
+    expect(updated!.competitorsFetchedAt!.getTime()).toBe(originalDate.getTime())
   })
 })
