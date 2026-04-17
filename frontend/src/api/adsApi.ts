@@ -14,10 +14,11 @@ api.interceptors.response.use(
 
 export async function fetchAds(
   brand: string,
-  { limit = 20, forceRefresh = false }: { limit?: number; forceRefresh?: boolean } = {}
+  { limit = 20, forceRefresh = false, signal }: { limit?: number; forceRefresh?: boolean; signal?: AbortSignal } = {}
 ): Promise<AdsResponse> {
   const { data } = await api.get<AdsResponse>('/ads', {
     params: { brand, limit, forceRefresh },
+    signal,
   })
   return data
 }

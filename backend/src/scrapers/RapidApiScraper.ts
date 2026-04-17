@@ -1,18 +1,24 @@
 import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper.ts'
+import { env } from '../config/env.ts'
 
 // Uses RapidAPI's Facebook Ads Library endpoint.
 // Required env: RAPIDAPI_KEY, RAPIDAPI_HOST (e.g. "facebook-ads-library.p.rapidapi.com")
 // Find a host at: https://rapidapi.com/search/facebook+ads+library
 export class RapidApiScraper extends BaseScraper {
   readonly name = 'rapidapi'
+  private readonly apiKey: string
+  private readonly apiHost: string
+
+  constructor() {
+    super()
+    if (!env.RAPIDAPI_KEY) throw new Error('RAPIDAPI_KEY not set')
+    if (!env.RAPIDAPI_HOST) throw new Error('RAPIDAPI_HOST not set')
+    this.apiKey = env.RAPIDAPI_KEY
+    this.apiHost = env.RAPIDAPI_HOST
+  }
 
   async scrape(brandName: string, { limit = 20 }: ScrapeOptions = {}): Promise<ScrapeResult> {
-    const apiKey = process.env.RAPIDAPI_KEY
-    const apiHost = process.env.RAPIDAPI_HOST
-    if (!apiKey) throw new Error('RAPIDAPI_KEY not set')
-    if (!apiHost) throw new Error('RAPIDAPI_HOST not set')
-
-    const url = new URL(`https://${apiHost}/ads`)
+    const url = new URL(`https://${this.apiHost}/ads`)
     url.searchParams.set('q', brandName)
     url.searchParams.set('limit', String(limit))
     url.searchParams.set('country', 'US')
@@ -21,8 +27,8 @@ export class RapidApiScraper extends BaseScraper {
 
     const res = await fetch(url.toString(), {
       headers: {
-        'x-rapidapi-key': apiKey,
-        'x-rapidapi-host': apiHost,
+        'x-rapidapi-key': this.apiKey,
+        'x-rapidapi-host': this.apiHost,
       },
     })
 

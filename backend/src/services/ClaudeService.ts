@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { isMockLLM } from '../utils/mockMode.ts'
 import { streamMockAnalysis, streamMockChat } from '../mocks/claudeMock.ts'
+import { env } from '../config/env.ts'
 
 export interface AdInput {
   platform: string
@@ -13,7 +14,7 @@ export interface AdInput {
 }
 
 export class ClaudeService {
-  private readonly client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  private readonly client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
 
   async *streamAnalysis(ad: AdInput): AsyncGenerator<string> {
     if (isMockLLM()) {
@@ -111,7 +112,7 @@ Answer questions analytically with specific examples from these ads. Be concise 
 
     const stream = await this.client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
+      max_tokens: 2048,
       system,
       stream: true,
       messages: anthropicMessages,

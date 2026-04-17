@@ -35,7 +35,10 @@
       "Bash(docker ps:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(find /c/Dev/Upspring.ai -maxdepth 3 -type f \\\\\\(-name jest.config.* -o -name vitest.config.* -o -name playwright.config.* -o -name cypress.config.* \\\\\\))",
+      "Bash(find /c/Dev/Upspring.ai -maxdepth 3 -type f \\\\\\(-name setupTests* -o -name jest.setup.* -o -name vitest.setup.* \\\\\\))",
+      "Bash(xargs grep:*)"
     ]
   }
 }

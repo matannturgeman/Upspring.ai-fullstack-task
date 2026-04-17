@@ -9,6 +9,34 @@ import type { ClaudeService } from '../services/ClaudeService.ts'
 export class AnalysisController {
   constructor(private readonly claude: ClaudeService) {}
 
+  private async streamToSSE(
+    res: Response,
+    generator: AsyncGenerator<string>,
+    label: string
+  ): Promise<void> {
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+    res.flushHeaders()
+
+    const write = (payload: unknown) => {
+      res.write(`data: ${JSON.stringify(AnalysisSseChunkSchema.parse(payload))}\n\n`)
+    }
+
+    try {
+      for await (const chunk of generator) {
+        write({ text: chunk })
+      }
+      res.write('data: [DONE]\n\n')
+    } catch (err) {
+      console.error(`[${label}] stream error:`, err)
+      write({ error: 'PROVIDER_ERROR' })
+      res.write('data: [DONE]\n\n')
+    } finally {
+      res.end()
+    }
+  }
+
   streamAnalysis = async (req: Request, res: Response): Promise<void> => {
     const parsed = AnalysisBodySchema.safeParse(req.body)
     if (!parsed.success) {
@@ -25,28 +53,7 @@ export class AnalysisController {
       return
     }
 
-    res.setHeader('Content-Type', 'text/event-stream')
-    res.setHeader('Cache-Control', 'no-cache')
-    res.setHeader('Connection', 'keep-alive')
-    res.flushHeaders()
-
-    const writeChunk = (payload: unknown) => {
-      const validated = AnalysisSseChunkSchema.parse(payload)
-      res.write(`data: ${JSON.stringify(validated)}\n\n`)
-    }
-
-    try {
-      for await (const chunk of this.claude.streamAnalysis(ad)) {
-        writeChunk({ text: chunk })
-      }
-      res.write('data: [DONE]\n\n')
-    } catch (err) {
-      console.error('Analysis stream error:', err)
-      writeChunk({ error: 'PROVIDER_ERROR' })
-      res.write('data: [DONE]\n\n')
-    } finally {
-      res.end()
-    }
+    await this.streamToSSE(res, this.claude.streamAnalysis(ad), 'streamAnalysis')
   }
 
   streamChat = async (req: Request, res: Response): Promise<void> => {
@@ -70,27 +77,6 @@ export class AnalysisController {
       return
     }
 
-    res.setHeader('Content-Type', 'text/event-stream')
-    res.setHeader('Cache-Control', 'no-cache')
-    res.setHeader('Connection', 'keep-alive')
-    res.flushHeaders()
-
-    const writeChunk = (payload: unknown) => {
-      const validated = AnalysisSseChunkSchema.parse(payload)
-      res.write(`data: ${JSON.stringify(validated)}\n\n`)
-    }
-
-    try {
-      for await (const chunk of this.claude.streamChat(brand.name, ads, messages)) {
-        writeChunk({ text: chunk })
-      }
-      res.write('data: [DONE]\n\n')
-    } catch (err) {
-      console.error('Chat stream error:', err)
-      writeChunk({ error: 'PROVIDER_ERROR' })
-      res.write('data: [DONE]\n\n')
-    } finally {
-      res.end()
-    }
+    await this.streamToSSE(res, this.claude.streamChat(brand.name, ads, messages), 'streamChat')
   }
 }

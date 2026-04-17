@@ -25,7 +25,9 @@ export function useChat() {
     setChatLoading(true)
     setChatError(null)
 
-    // Build conversation history for API (all previous + new user message)
+    // chatMessages is the pre-send snapshot (captured at render time, before addChatMessage calls above).
+    // Intentional: the API receives only prior history + new user message,
+    // not the blank AI placeholder just added for the UI.
     const history = [
       ...chatMessages.map(m => ({ role: m.role === 'ai' ? 'assistant' as const : 'user' as const, content: m.text })),
       { role: 'user' as const, content: userText },

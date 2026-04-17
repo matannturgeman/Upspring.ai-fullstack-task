@@ -9,6 +9,14 @@ export const AnalysisBodySchema = z.object({
     .regex(OBJECT_ID_REGEX, 'adId must be a valid ObjectId'),
 })
 
+export const CompetitorBodySchema = z.object({
+  brandName: z.string().min(1).max(200),
+  brandId: z
+    .string()
+    .min(1, 'brandId is required')
+    .regex(OBJECT_ID_REGEX, 'brandId must be a valid ObjectId'),
+})
+
 export const ChatBodySchema = z.object({
   brandId: z
     .string()

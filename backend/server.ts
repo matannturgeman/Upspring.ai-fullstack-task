@@ -4,7 +4,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import { connectDB } from './src/config/db.ts'
-import { validateEnv } from './src/config/env.ts'
+import { env } from './src/config/env.ts'
 import { errorHandler } from './src/middleware/errorHandler.ts'
 import { timeoutMiddleware } from './src/middleware/timeout.ts'
 import adsRouter from './src/routes/ads.ts'
@@ -12,17 +12,15 @@ import analysisRouter from './src/routes/analysis.ts'
 import competitorsRouter from './src/routes/competitors.ts'
 import imageProxyRouter from './src/utils/imageProxy.ts'
 
-validateEnv()
-
 const app = express()
 
 const REQUEST_TIMEOUT_MS = 30_000
 const JSON_BODY_LIMIT = '50kb'
 const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX = process.env.NODE_ENV === 'production' ? 30 : 500
+const RATE_LIMIT_MAX = env.NODE_ENV === 'production' ? 30 : 500
 
 app.use(helmet())
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true, methods: ['GET', 'POST'] }))
+app.use(cors({ origin: env.FRONTEND_URL, credentials: true, methods: ['GET', 'POST'] }))
 app.use(express.json({ limit: JSON_BODY_LIMIT }))
 app.use(morgan('dev'))
 app.use(timeoutMiddleware(REQUEST_TIMEOUT_MS))
@@ -37,10 +35,13 @@ app.use('/api/proxy/image', imageProxyRouter)
 
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 4000
-
-if (process.env.NODE_ENV !== 'test') {
-  connectDB().then(() => app.listen(PORT, () => console.log(`Server running on :${PORT}`)))
+if (env.NODE_ENV !== 'test') {
+  connectDB()
+    .then(() => app.listen(env.PORT, () => console.log(`Server running on :${env.PORT}`)))
+    .catch(err => {
+      console.error('[startup] DB connection failed, exiting:', err)
+      process.exit(1)
+    })
 }
 
 export default app

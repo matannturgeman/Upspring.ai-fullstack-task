@@ -1,15 +1,20 @@
 import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper.ts'
+import { env } from '../config/env.ts'
 
 // Uses ScrapingBee as a proxy to hit the Meta Ads Library async endpoint.
 // Required env: SCRAPINGBEE_API_KEY
 // Docs: https://www.scrapingbee.com/documentation/
 export class ScrapingBeeScraper extends BaseScraper {
   readonly name = 'scrapingbee'
+  private readonly apiKey: string
+
+  constructor() {
+    super()
+    if (!env.SCRAPINGBEE_API_KEY) throw new Error('SCRAPINGBEE_API_KEY not set')
+    this.apiKey = env.SCRAPINGBEE_API_KEY
+  }
 
   async scrape(brandName: string, { limit = 20 }: ScrapeOptions = {}): Promise<ScrapeResult> {
-    const apiKey = process.env.SCRAPINGBEE_API_KEY
-    if (!apiKey) throw new Error('SCRAPINGBEE_API_KEY not set')
-
     const targetUrl = [
       'https://www.facebook.com/ads/library/async/search_ads/',
       `?q=${encodeURIComponent(brandName)}`,
@@ -19,7 +24,7 @@ export class ScrapingBeeScraper extends BaseScraper {
     ].join('')
 
     const params = new URLSearchParams({
-      api_key: apiKey,
+      api_key: this.apiKey,
       url: targetUrl,
       render_js: 'false',
       premium_proxy: 'true',

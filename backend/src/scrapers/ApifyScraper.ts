@@ -1,12 +1,18 @@
 import { ApifyClient } from 'apify-client'
 import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper.ts'
+import { env } from '../config/env.ts'
 
 const ACTOR_ID = 'apify/facebook-ads-scraper'
 const TIMEOUT_SECS = 120
 
 export class ApifyScraper extends BaseScraper {
   readonly name = 'apify'
-  private client = new ApifyClient({ token: process.env.APIFY_API_TOKEN })
+  private readonly client: ApifyClient
+
+  constructor() {
+    super()
+    this.client = new ApifyClient({ token: env.APIFY_API_TOKEN })
+  }
 
   async scrape(brandName: string, { limit = 20 }: ScrapeOptions = {}): Promise<ScrapeResult> {
     const run = await this.client.actor(ACTOR_ID).call(

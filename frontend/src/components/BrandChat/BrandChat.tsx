@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { useAppStore } from '../../store/appStore.ts'
 import { useChat } from '../../hooks/useChat.ts'
@@ -29,24 +29,24 @@ export function BrandChat() {
 
   if (!chatOpen || !currentBrand) return null
 
-  function handleSend() {
+  const handleSend = useCallback(() => {
     const text = input.trim()
     if (!text || chatLoading) return
     setInput('')
     void sendMessage(currentBrand!._id, text)
-  }
+  }, [input, chatLoading, currentBrand, sendMessage])
 
-  function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
     }
-  }
+  }, [handleSend])
 
-  function handleSuggestion(text: string) {
+  const handleSuggestion = useCallback((text: string) => {
     if (chatLoading) return
     void sendMessage(currentBrand!._id, text)
-  }
+  }, [chatLoading, currentBrand, sendMessage])
 
   return (
     <div

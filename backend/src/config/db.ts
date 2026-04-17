@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { env } from './env.ts'
 
 const MAX_RETRIES = 3
 const RETRY_DELAY_MS = 2000
@@ -6,7 +7,7 @@ const RETRY_DELAY_MS = 2000
 export async function connectDB(): Promise<void> {
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      await mongoose.connect(process.env.MONGODB_URI as string)
+      await mongoose.connect(env.MONGODB_URI)
       console.log('MongoDB connected')
       return
     } catch (err) {

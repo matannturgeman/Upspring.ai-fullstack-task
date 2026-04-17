@@ -4,31 +4,46 @@ import { ScrapingBeeScraper } from './ScrapingBeeScraper.ts'
 import { RapidApiScraper } from './RapidApiScraper.ts'
 import { MockScraper } from './MockScraper.ts'
 import { isMockScraper } from '../utils/mockMode.ts'
+import { env } from '../config/env.ts'
+
+const SCRAPER_FACTORIES: Record<string, () => BaseScraper> = {
+  apify: () => new ApifyScraper(),
+  scrapingbee: () => new ScrapingBeeScraper(),
+  rapidapi: () => new RapidApiScraper(),
+}
 
 export class ScraperRegistry {
-  private readonly registry: Record<string, BaseScraper> = {
-    apify: new ApifyScraper(),
-    scrapingbee: new ScrapingBeeScraper(),
-    rapidapi: new RapidApiScraper(),
-  }
-
+  private readonly scrapers: BaseScraper[]
   private readonly mock = new MockScraper()
+
+  constructor() {
+    const names = env.SCRAPER_PRIORITY.split(',').map(s => s.trim()).filter(Boolean)
+
+    this.scrapers = names.flatMap(name => {
+      const factory = SCRAPER_FACTORIES[name]
+      if (!factory) {
+        console.warn(`[ScraperRegistry] unknown scraper "${name}", skipping`)
+        return []
+      }
+      try {
+        return [factory()]
+      } catch (err) {
+        console.warn(`[ScraperRegistry] failed to init "${name}": ${(err as Error).message}`)
+        return []
+      }
+    })
+
+    if (this.scrapers.length === 0) {
+      throw new Error(
+        `No valid scrapers configured in SCRAPER_PRIORITY="${env.SCRAPER_PRIORITY}". Valid: ${Object.keys(SCRAPER_FACTORIES).join(', ')}`
+      )
+    }
+  }
 
   async scrape(brandName: string, options?: ScrapeOptions): Promise<ScrapeResult> {
     if (isMockScraper()) return this.mock.scrape(brandName, options)
 
-    const priority = (process.env.SCRAPER_PRIORITY ?? 'apify')
-      .split(',')
-      .map(s => s.trim())
-      .filter(Boolean)
-
-    const scrapers = priority.map(name => this.registry[name]).filter(Boolean)
-
-    if (scrapers.length === 0) {
-      throw new Error(
-        `No valid scrapers in SCRAPER_PRIORITY="${process.env.SCRAPER_PRIORITY}". Valid: ${Object.keys(this.registry).join(', ')}`
-      )
-    }
+    const scrapers = this.scrapers
 
     const errors: string[] = []
     for (const scraper of scrapers) {

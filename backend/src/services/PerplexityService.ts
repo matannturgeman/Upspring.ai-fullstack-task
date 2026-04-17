@@ -1,3 +1,5 @@
+import { env } from '../config/env.ts'
+
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions'
 
 export class PerplexityService {
@@ -11,7 +13,7 @@ Only return the JSON array, no other text.`
     const response = await fetch(PERPLEXITY_API_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        Authorization: `Bearer ${env.PERPLEXITY_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

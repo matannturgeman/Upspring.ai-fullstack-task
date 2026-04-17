@@ -1,9 +1,11 @@
+import { env } from '../config/env.ts'
+
 export function isMockLLM(): boolean {
-  return process.env.MOCK_LLM === 'true'
+  return env.MOCK_LLM
 }
 
 export function isMockScraper(): boolean {
-  return process.env.MOCK_SCRAPER === 'true'
+  return env.MOCK_SCRAPER
 }
 
 /** @deprecated use isMockLLM() */

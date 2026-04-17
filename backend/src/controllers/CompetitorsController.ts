@@ -1,5 +1,7 @@
 import { type Request, type Response, type NextFunction } from 'express'
+import { StatusCodes } from 'http-status-codes'
 import Brand from '../models/Brand.ts'
+import { CompetitorBodySchema } from '../schemas/analysis.schemas.ts'
 import type { CompetitorService } from '../services/CompetitorService.ts'
 
 export class CompetitorsController {
@@ -7,14 +9,17 @@ export class CompetitorsController {
 
   findCompetitors = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { brandName, brandId } = req.body as { brandName?: unknown; brandId?: unknown }
-
-      if (!brandName || typeof brandName !== 'string' || !brandId || typeof brandId !== 'string') {
-        res.status(400).json({ error: true, message: 'brandName and brandId required', code: 'MISSING_PARAMS' })
+      const parsed = CompetitorBodySchema.safeParse(req.body)
+      if (!parsed.success) {
+        res.status(StatusCodes.BAD_REQUEST).json({
+          error: 'INVALID_INPUT',
+          message: parsed.error.issues[0].message,
+        })
         return
       }
 
-      const result = await this.competitorService.findCompetitors(brandName.trim(), brandId.trim())
+      const { brandName, brandId } = parsed.data
+      const result = await this.competitorService.findCompetitors(brandName, brandId)
 
       await Brand.findByIdAndUpdate(brandId, { competitors: result.competitors })
 
