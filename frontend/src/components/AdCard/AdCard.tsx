@@ -106,8 +106,11 @@ export function AdCard({ ad }: Props) {
           >
             {ad.status === 'ACTIVE' ? 'Active' : 'Inactive'}
           </span>
-          <span className="text-xs text-gray-400 dark:text-gray-600 italic">
-            Performance data unavailable
+          <span
+            title="Meta's public Ads Library doesn't expose performance metrics (impressions, CTR, spend). Platform limitation."
+            className="text-xs px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-help"
+          >
+            No perf data ⓘ
           </span>
         </div>
 

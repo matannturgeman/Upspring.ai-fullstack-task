@@ -24,8 +24,16 @@ export class CompetitorsController {
       const brand = await Brand.findById(brandId).lean()
       if (brand) {
         const cacheAfter = new Date(Date.now() - env.COMPETITOR_CACHE_TTL_MS)
-        if (brand.competitorsFetchedAt && brand.competitorsFetchedAt > cacheAfter && brand.competitors.length > 0) {
-          res.json({ competitors: brand.competitors, source: 'cache', disclaimer: 'Cached results' })
+        if (
+          brand.competitorsFetchedAt &&
+          brand.competitorsFetchedAt > cacheAfter &&
+          brand.competitors.length > 0
+        ) {
+          res.json({
+            competitors: brand.competitors,
+            source: 'cache',
+            disclaimer: 'Cached results',
+          })
           return
         }
       }

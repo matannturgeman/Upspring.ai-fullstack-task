@@ -21,7 +21,9 @@ async function createBrand(
     lastFetched: new Date(),
     adCount: 2,
     competitors: overrides.competitors ?? [],
-    ...(overrides.competitorsFetchedAt ? { competitorsFetchedAt: overrides.competitorsFetchedAt } : {}),
+    ...(overrides.competitorsFetchedAt
+      ? { competitorsFetchedAt: overrides.competitorsFetchedAt }
+      : {}),
   })
 }
 

@@ -41,7 +41,20 @@
       "Bash(xargs grep:*)",
       "Bash(BASE_URL=http://localhost:5174 npx playwright test tests/e2e/chat.spec.ts 2>&1)",
       "Bash(curl -s http://localhost:5173)",
-      "Bash(npx prettier:*)"
+      "Bash(npx prettier:*)",
+      "Bash(node:*)",
+      "Bash(find /c/Dev/Upspring.ai/frontend/tests -type f -name *.ts -o -name *.tsx)",
+      "Read(//mnt/c/**)",
+      "Read(//c/Dev//**)",
+      "Bash(wslpath \"C:\\\\Dev\\\\Upspring.ai\")",
+      "Bash(ls /mnt/)",
+      "Read(//c//**)",
+      "Bash(curl:*)",
+      "Bash(vercel --version)",
+      "Bash(ls C:/Dev/Upspring.ai/*.md)",
+      "Bash(ls C:/Dev/Upspring.ai/frontend/*.md)",
+      "Bash(grep:*)",
+      "Bash(find /c/Dev/Upspring.ai/backend/src/mocks -type f -name *.ts)"
     ]
   }
 }

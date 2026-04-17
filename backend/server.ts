@@ -17,7 +17,8 @@ const app = express()
 
 const REQUEST_TIMEOUT_MS = 30_000
 const JSON_BODY_LIMIT = '50kb'
-const corsOrigin = env.FRONTEND_URL ?? (env.NODE_ENV === 'development' ? 'http://localhost:5173' : false)
+const corsOrigin =
+  env.FRONTEND_URL ?? (env.NODE_ENV === 'development' ? 'http://localhost:5173' : false)
 const corsOptions: CorsOptions = {
   origin: corsOrigin,
   credentials: Boolean(corsOrigin),

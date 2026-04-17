@@ -5,7 +5,11 @@ import type { ClaudeService } from '../../src/services/ClaudeService'
 
 vi.mock('../../src/utils/mockMode', () => ({ isMockLLM: () => false }))
 vi.mock('../../src/models/Ad', () => ({
-  default: { find: vi.fn().mockReturnValue({ lean: vi.fn().mockReturnValue({ limit: vi.fn().mockResolvedValue([]) }) }) },
+  default: {
+    find: vi
+      .fn()
+      .mockReturnValue({ lean: vi.fn().mockReturnValue({ limit: vi.fn().mockResolvedValue([]) }) }),
+  },
 }))
 
 const MOCK_COMPETITORS = [
@@ -13,7 +17,9 @@ const MOCK_COMPETITORS = [
   { name: 'Puma', reason: 'Competes in sportswear market' },
 ]
 
-function makeService(overrides: { perplexity?: Partial<PerplexityService>; claude?: Partial<ClaudeService> } = {}) {
+function makeService(
+  overrides: { perplexity?: Partial<PerplexityService>; claude?: Partial<ClaudeService> } = {},
+) {
   const perplexity = {
     searchCompetitors: vi.fn().mockResolvedValue(MOCK_COMPETITORS),
     ...overrides.perplexity,
@@ -37,7 +43,9 @@ describe('CompetitorService.findCompetitors', () => {
 
   it('falls back to Claude when Perplexity throws', async () => {
     const { service } = makeService({
-      perplexity: { searchCompetitors: vi.fn().mockRejectedValue(new Error('Perplexity unavailable')) },
+      perplexity: {
+        searchCompetitors: vi.fn().mockRejectedValue(new Error('Perplexity unavailable')),
+      },
     })
     const result = await service.findCompetitors('Nike', 'brand123')
     expect(result.source).toBe('claude')

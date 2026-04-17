@@ -114,7 +114,9 @@ test.describe('Competitor discovery', () => {
     )
 
     await page.getByRole('button', { name: /Find Competitors/i }).click()
-    await expect(page.getByText(/Via AI reasoning from ad content/i)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/Via AI reasoning from ad content/i)).toBeVisible({
+      timeout: 10_000,
+    })
   })
 
   test('does not show source label when returning from cache', async ({ page }) => {
@@ -175,6 +177,8 @@ test.describe('Competitor discovery', () => {
   })
 
   test('shows placeholder text before competitors are loaded', async ({ page }) => {
-    await expect(page.getByText(/Click "Find Competitors" to discover competing brands/i)).toBeVisible()
+    await expect(
+      page.getByText(/Click "Find Competitors" to discover competing brands/i),
+    ).toBeVisible()
   })
 })

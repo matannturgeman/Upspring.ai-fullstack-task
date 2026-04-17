@@ -5,6 +5,9 @@ import { useAnalysis } from '../../hooks/useAnalysis.ts'
 
 export function AnalysisPanel() {
   const { selectedAdId, analysisMessages, analysisLoading, analysisError } = useAppStore()
+  const ads = useAppStore((s) => s.ads)
+  const selectedAd = ads.find((a) => a._id === selectedAdId)
+  const modelLabel = selectedAd?.videoUrl ? 'gemini-2.0-flash' : 'claude-sonnet-4-6'
   const { close } = useAnalysis()
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -31,9 +34,7 @@ export function AnalysisPanel() {
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
               AI Ad Analysis
             </span>
-            <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
-              claude-sonnet-4-6
-            </span>
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">{modelLabel}</span>
           </div>
           <button
             onClick={close}

@@ -5,6 +5,7 @@ import Brand from '../models/Brand'
 import { AnalysisBodySchema, ChatBodySchema } from '../schemas/analysis.schemas'
 import { AnalysisSseChunkSchema } from '../schemas/llm.schemas'
 import type { ClaudeService } from '../services/ClaudeService'
+import type { GeminiService } from '../services/GeminiService'
 
 type StreamingResponse = Response & {
   flushHeaders(): void
@@ -14,7 +15,10 @@ type StreamingResponse = Response & {
 }
 
 export class AnalysisController {
-  constructor(private readonly claude: ClaudeService) {}
+  constructor(
+    private readonly claude: ClaudeService,
+    private readonly gemini: GeminiService,
+  ) {}
 
   private async streamToSSE(
     res: Response,
@@ -62,7 +66,8 @@ export class AnalysisController {
       return
     }
 
-    await this.streamToSSE(res, this.claude.streamAnalysis(ad), 'streamAnalysis')
+    const generator = ad.videoUrl ? this.gemini.streamAnalysis(ad) : this.claude.streamAnalysis(ad)
+    await this.streamToSSE(res, generator, 'streamAnalysis')
   }
 
   streamChat = async (req: Request, res: Response): Promise<void> => {

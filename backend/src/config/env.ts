@@ -30,6 +30,7 @@ const EnvSchema = z.object({
 
   // Scraper config
   SCRAPER_PRIORITY: z.string().default('apify'),
+  GEMINI_API_KEY: z.string().optional(),
   SCRAPINGBEE_API_KEY: z.string().optional(),
   RAPIDAPI_KEY: z.string().optional(),
   RAPIDAPI_HOST: z.string().optional(),

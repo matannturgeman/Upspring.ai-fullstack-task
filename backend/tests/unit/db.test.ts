@@ -9,9 +9,11 @@ import mongoose from 'mongoose'
 import { connectDB } from '../../src/config/db'
 
 const mockedConnect = vi.mocked(
-  (mongoose as unknown as {
-    connect: (...args: unknown[]) => Promise<unknown>
-  }).connect,
+  (
+    mongoose as unknown as {
+      connect: (...args: unknown[]) => Promise<unknown>
+    }
+  ).connect,
 )
 
 describe('connectDB', () => {

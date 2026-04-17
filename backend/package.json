@@ -7,7 +7,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .", 
+    "lint": "eslint .",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "vitest run --config vitest.config.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts",
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.88.0",
+    "@google/generative-ai": "^0.24.1",
     "apify-client": "2.23.0",
     "cors": "2.8.6",
     "dotenv": "17.4.2",
