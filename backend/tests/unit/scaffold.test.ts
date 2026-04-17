@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { errorHandler } from '../../src/middleware/errorHandler.ts'
-import { timeoutMiddleware } from '../../src/middleware/timeout.ts'
+import { errorHandler } from '../../src/middleware/errorHandler'
+import { timeoutMiddleware } from '../../src/middleware/timeout'
 
 describe('errorHandler', () => {
   it('returns error shape with status + code', () => {

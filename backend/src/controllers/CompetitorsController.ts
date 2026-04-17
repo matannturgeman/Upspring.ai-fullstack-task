@@ -1,9 +1,9 @@
 import { type Request, type Response, type NextFunction } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import Brand from '../models/Brand.ts'
-import { CompetitorBodySchema } from '../schemas/analysis.schemas.ts'
-import type { CompetitorService } from '../services/CompetitorService.ts'
-import { env } from '../config/env.ts'
+import Brand from '../models/Brand'
+import { CompetitorBodySchema } from '../schemas/analysis.schemas'
+import type { CompetitorService } from '../services/CompetitorService'
+import { env } from '../config/env'
 
 export class CompetitorsController {
   constructor(private readonly competitorService: CompetitorService) {}

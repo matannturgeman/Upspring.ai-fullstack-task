@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ExtractionSchema, type ExtractionResult } from '../../schemas/extraction.schemas.ts'
+import { ExtractionSchema, type ExtractionResult } from '../../schemas/extraction.schemas'
 
 // Zod shape for the normalized raw ad format (Apify + all scrapers normalize to this)
 const RawShape = z

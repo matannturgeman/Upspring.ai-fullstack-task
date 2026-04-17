@@ -1,8 +1,14 @@
-import mongoose from 'mongoose'
+import mongoose = require('mongoose')
+
+type MongoId = unknown
+
+const SchemaTypes = mongoose.Schema as any
+const ObjectIdType = SchemaTypes.Types.ObjectId
+const MixedType = SchemaTypes.Types.Mixed
 
 export interface IAd {
-  brandId: mongoose.Types.ObjectId
-  rawAdId: mongoose.Types.ObjectId
+  brandId: MongoId
+  rawAdId: MongoId
   extractionMethod: 'code' | 'ai'
   adId?: string
   platform: string
@@ -18,8 +24,8 @@ export interface IAd {
 
 const AdSchema = new mongoose.Schema<IAd>(
   {
-    brandId: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', required: true, index: true },
-    rawAdId: { type: mongoose.Schema.Types.ObjectId, ref: 'RawAd', required: true },
+    brandId: { type: ObjectIdType, ref: 'Brand', required: true, index: true },
+    rawAdId: { type: ObjectIdType, ref: 'RawAd', required: true },
     extractionMethod: { type: String, enum: ['code', 'ai'], required: true },
     adId: { type: String, index: true },
     platform: { type: String, default: 'Facebook/Instagram' },
@@ -30,9 +36,9 @@ const AdSchema = new mongoose.Schema<IAd>(
     thumbnailUrl: String,
     startDate: Date,
     status: { type: String, enum: ['ACTIVE', 'INACTIVE', 'UNKNOWN'], default: 'UNKNOWN' },
-    performanceData: { type: mongoose.Schema.Types.Mixed, default: null },
+    performanceData: { type: MixedType, default: null },
   },
   { timestamps: true },
 )
 
-export default (mongoose.models.Ad as mongoose.Model<IAd>) ?? mongoose.model<IAd>('Ad', AdSchema)
+export default (mongoose.models.Ad as any) ?? mongoose.model<IAd>('Ad', AdSchema)

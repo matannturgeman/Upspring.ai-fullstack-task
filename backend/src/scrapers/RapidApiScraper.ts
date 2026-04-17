@@ -1,5 +1,5 @@
-import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper.ts'
-import { env } from '../config/env.ts'
+import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper'
+import { env } from '../config/env'
 
 // Uses RapidAPI's Facebook Ads Library endpoint.
 // Required env: RAPIDAPI_KEY, RAPIDAPI_HOST (e.g. "facebook-ads-library.p.rapidapi.com")

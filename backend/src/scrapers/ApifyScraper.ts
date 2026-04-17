@@ -1,6 +1,6 @@
 import { ApifyClient } from 'apify-client'
-import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper.ts'
-import { env } from '../config/env.ts'
+import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper'
+import { env } from '../config/env'
 
 const ACTOR_ID = 'apify/facebook-ads-scraper'
 const TIMEOUT_SECS = 120

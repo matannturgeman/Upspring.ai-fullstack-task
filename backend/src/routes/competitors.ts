@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { competitorsController } from '../container.ts'
+import { competitorsController } from '../container'
 
 const router = Router()
 

@@ -3,6 +3,12 @@ import { StatusCodes } from 'http-status-codes'
 
 const router = Router()
 
+type StreamingResponse = Response & {
+  setHeader(name: string, value: string): void
+  write(chunk: Uint8Array): void
+  end(): void
+}
+
 const ALLOWED_HOSTS = new Set([
   'scontent.cdninstagram.com',
   'scontent-lga3-2.cdninstagram.com',
@@ -58,18 +64,20 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    res.setHeader('Content-Type', upstream.headers.get('content-type') || 'image/jpeg')
-    res.setHeader('Cache-Control', 'public, max-age=3600')
+    const stream = res as StreamingResponse
+
+    stream.setHeader('Content-Type', upstream.headers.get('content-type') || 'image/jpeg')
+    stream.setHeader('Cache-Control', 'public, max-age=3600')
 
     // Stream instead of buffering entire image in memory
     const reader = upstream.body.getReader()
     const pump = async (): Promise<void> => {
       const { done, value } = await reader.read()
       if (done) {
-        res.end()
+        stream.end()
         return
       }
-      res.write(Buffer.from(value))
+      stream.write(value)
       return pump()
     }
     await pump()

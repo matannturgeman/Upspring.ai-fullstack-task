@@ -1,8 +1,8 @@
-import { mockFindCompetitors } from '../mocks/perplexityMock.ts'
-import { isMockLLM } from '../utils/mockMode.ts'
-import Ad from '../models/Ad.ts'
-import type { PerplexityService } from './PerplexityService.ts'
-import type { ClaudeService } from './ClaudeService.ts'
+import { mockFindCompetitors } from '../mocks/perplexityMock'
+import { isMockLLM } from '../utils/mockMode'
+import Ad from '../models/Ad'
+import type { PerplexityService } from './PerplexityService'
+import type { ClaudeService } from './ClaudeService'
 
 export type CompetitorResult = {
   competitors: { name: string; reason: string }[]
@@ -31,7 +31,9 @@ export class CompetitorService {
     // Strategy 2: Claude reasoning from stored ad content
     const ads = await Ad.find({ brandId }).lean().limit(10)
     const adContext = ads
-      .map((a) => `${a.headline ?? ''} ${a.primaryText ?? ''}`.trim())
+      .map((ad: { headline?: string; primaryText?: string }) =>
+        `${ad.headline ?? ''} ${ad.primaryText ?? ''}`.trim(),
+      )
       .filter(Boolean)
       .join('\n')
       .slice(0, 2000)

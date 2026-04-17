@@ -1,4 +1,4 @@
-import type { ScrapeResult } from '../scrapers/BaseScraper.ts'
+import type { ScrapeResult } from '../scrapers/BaseScraper'
 
 const MOCK_ADS: Record<string, unknown>[] = [
   {

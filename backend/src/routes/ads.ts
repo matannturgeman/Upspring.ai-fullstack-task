@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { adsController } from '../container.ts'
+import { adsController } from '../container'
 
 const router = Router()
 

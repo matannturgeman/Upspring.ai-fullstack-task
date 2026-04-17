@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 
-vi.mock('../../src/utils/mockMode.ts', () => ({ isMockLLM: vi.fn(), isMockMode: vi.fn() }))
-vi.mock('../../src/mocks/claudeMock.ts', () => ({
+vi.mock('../../src/utils/mockMode', () => ({ isMockLLM: vi.fn(), isMockMode: vi.fn() }))
+vi.mock('../../src/mocks/claudeMock', () => ({
   streamMockAnalysis: async function* () {
     yield 'Headline '
     yield 'analysis '
@@ -13,8 +13,8 @@ vi.mock('../../src/mocks/claudeMock.ts', () => ({
   },
 }))
 
-import { isMockLLM } from '../../src/utils/mockMode.ts'
-import { ClaudeService } from '../../src/services/ClaudeService.ts'
+import { isMockLLM } from '../../src/utils/mockMode'
+import { ClaudeService } from '../../src/services/ClaudeService'
 
 const ad = {
   platform: 'Facebook',
@@ -31,8 +31,6 @@ const messages = [{ role: 'user' as const, content: 'What patterns do you see?' 
 
 describe('ClaudeService.streamChat', () => {
   const service = new ClaudeService()
-
-  beforeEach(() => vi.clearAllMocks())
 
   it('yields mock tokens in mock mode', async () => {
     vi.mocked(isMockLLM).mockReturnValue(true)
@@ -63,8 +61,6 @@ describe('ClaudeService.streamChat', () => {
 
 describe('ClaudeService.streamAnalysis', () => {
   const service = new ClaudeService()
-
-  beforeEach(() => vi.clearAllMocks())
 
   it('yields mock tokens in mock mode', async () => {
     vi.mocked(isMockLLM).mockReturnValue(true)

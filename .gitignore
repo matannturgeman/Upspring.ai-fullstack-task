@@ -10,3 +10,4 @@ requirments.md
 # E2E test results
 frontend/e2e-results/
 frontend/test-results/
+.env*.local

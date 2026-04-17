@@ -1,5 +1,5 @@
-import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper.ts'
-import { env } from '../config/env.ts'
+import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper'
+import { env } from '../config/env'
 
 // Uses ScrapingBee as a proxy to hit the Meta Ads Library async endpoint.
 // Required env: SCRAPINGBEE_API_KEY

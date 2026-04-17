@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { codeExtract } from '../../src/services/extraction/codeExtractor.ts'
+import { codeExtract } from '../../src/services/extraction/codeExtractor'
 
 describe('codeExtract', () => {
   it('parses a full raw ad correctly', () => {

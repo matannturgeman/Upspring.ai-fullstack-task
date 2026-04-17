@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Request, Response, NextFunction } from 'express'
-import { timeoutMiddleware } from '../../src/middleware/timeout.ts'
+import { timeoutMiddleware } from '../../src/middleware/timeout'
 
 function makeMocks() {
   const events: Record<string, (() => void)[]> = {}

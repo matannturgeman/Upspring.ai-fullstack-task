@@ -1,8 +1,8 @@
 import { type Request, type Response, type NextFunction } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import Ad from '../models/Ad.ts'
-import { AdsQuerySchema } from '../schemas/ads.schemas.ts'
-import type { AdsService } from '../services/AdsService.ts'
+import Ad from '../models/Ad'
+import { AdsQuerySchema } from '../schemas/ads.schemas'
+import type { AdsService } from '../services/AdsService'
 
 export class AdsController {
   constructor(private readonly adsService: AdsService) {}

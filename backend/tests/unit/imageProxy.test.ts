@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isAllowedUrl } from '../../src/utils/imageProxy.ts'
+import { isAllowedUrl } from '../../src/utils/imageProxy'
 
 describe('isAllowedUrl (SSRF allowlist)', () => {
   // HTTP blocked

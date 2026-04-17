@@ -1,11 +1,11 @@
-import { codeExtract } from './extraction/codeExtractor.ts'
+import { codeExtract } from './extraction/codeExtractor'
 import {
   ExtractionSchema,
   extractionScore,
   type ExtractionResult,
-} from '../schemas/extraction.schemas.ts'
-import { isMockLLM } from '../utils/mockMode.ts'
-import type { ClaudeService } from './ClaudeService.ts'
+} from '../schemas/extraction.schemas'
+import { isMockLLM } from '../utils/mockMode'
+import type { ClaudeService } from './ClaudeService'
 
 export type ExtractionOutput = ExtractionResult & { extractionMethod: 'code' | 'ai' }
 

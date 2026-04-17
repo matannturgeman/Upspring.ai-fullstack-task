@@ -1,12 +1,12 @@
-import { ClaudeService } from './services/ClaudeService.ts'
-import { PerplexityService } from './services/PerplexityService.ts'
-import { ExtractionService } from './services/ExtractionService.ts'
-import { ScraperRegistry } from './scrapers/ScraperRegistry.ts'
-import { CompetitorService } from './services/CompetitorService.ts'
-import { AdsService } from './services/AdsService.ts'
-import { AdsController } from './controllers/AdsController.ts'
-import { AnalysisController } from './controllers/AnalysisController.ts'
-import { CompetitorsController } from './controllers/CompetitorsController.ts'
+import { ClaudeService } from './services/ClaudeService'
+import { PerplexityService } from './services/PerplexityService'
+import { ExtractionService } from './services/ExtractionService'
+import { ScraperRegistry } from './scrapers/ScraperRegistry'
+import { CompetitorService } from './services/CompetitorService'
+import { AdsService } from './services/AdsService'
+import { AdsController } from './controllers/AdsController'
+import { AnalysisController } from './controllers/AnalysisController'
+import { CompetitorsController } from './controllers/CompetitorsController'
 
 // Leaves (no dependencies)
 const claudeService = new ClaudeService()

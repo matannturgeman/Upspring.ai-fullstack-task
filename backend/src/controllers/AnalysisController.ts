@@ -1,10 +1,17 @@
 import { type Request, type Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import Ad from '../models/Ad.ts'
-import Brand from '../models/Brand.ts'
-import { AnalysisBodySchema, ChatBodySchema } from '../schemas/analysis.schemas.ts'
-import { AnalysisSseChunkSchema } from '../schemas/llm.schemas.ts'
-import type { ClaudeService } from '../services/ClaudeService.ts'
+import Ad from '../models/Ad'
+import Brand from '../models/Brand'
+import { AnalysisBodySchema, ChatBodySchema } from '../schemas/analysis.schemas'
+import { AnalysisSseChunkSchema } from '../schemas/llm.schemas'
+import type { ClaudeService } from '../services/ClaudeService'
+
+type StreamingResponse = Response & {
+  flushHeaders(): void
+  setHeader(name: string, value: string): void
+  write(chunk: string | Uint8Array): void
+  end(): void
+}
 
 export class AnalysisController {
   constructor(private readonly claude: ClaudeService) {}
@@ -14,26 +21,28 @@ export class AnalysisController {
     generator: AsyncGenerator<string>,
     label: string,
   ): Promise<void> {
-    res.setHeader('Content-Type', 'text/event-stream')
-    res.setHeader('Cache-Control', 'no-cache')
-    res.setHeader('Connection', 'keep-alive')
-    res.flushHeaders()
+    const stream = res as StreamingResponse
+
+    stream.setHeader('Content-Type', 'text/event-stream')
+    stream.setHeader('Cache-Control', 'no-cache')
+    stream.setHeader('Connection', 'keep-alive')
+    stream.flushHeaders()
 
     const write = (payload: unknown) => {
-      res.write(`data: ${JSON.stringify(AnalysisSseChunkSchema.parse(payload))}\n\n`)
+      stream.write(`data: ${JSON.stringify(AnalysisSseChunkSchema.parse(payload))}\n\n`)
     }
 
     try {
       for await (const chunk of generator) {
         write({ text: chunk })
       }
-      res.write('data: [DONE]\n\n')
+      stream.write('data: [DONE]\n\n')
     } catch (err) {
       console.error(`[${label}] stream error:`, err)
       write({ error: 'PROVIDER_ERROR' })
-      res.write('data: [DONE]\n\n')
+      stream.write('data: [DONE]\n\n')
     } finally {
-      res.end()
+      stream.end()
     }
   }
 

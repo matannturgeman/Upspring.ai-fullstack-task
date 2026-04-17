@@ -1,9 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
-import app from '../../server.ts'
-import { ScraperRegistry } from '../../src/scrapers/ScraperRegistry.ts'
 
-vi.mock('../../src/scrapers/ScraperRegistry.ts')
+const { mockScrape } = vi.hoisted(() => ({
+  mockScrape: vi.fn(),
+}))
+
+vi.mock('../../src/scrapers/ScraperRegistry', () => ({
+  ScraperRegistry: class {
+    scrape = mockScrape
+  },
+}))
+
+import app from '../../server'
 
 const mockAd = {
   id: '1',
@@ -17,14 +25,8 @@ const mockAd = {
     videos: [],
   },
 }
-
-const mockScrape = vi.fn()
-
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.mocked(ScraperRegistry).mockImplementation(
-    () => ({ scrape: mockScrape }) as unknown as ScraperRegistry,
-  )
 })
 
 describe('GET /api/ads', () => {

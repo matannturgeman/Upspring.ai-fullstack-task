@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { isMockLLM } from '../utils/mockMode.ts'
-import { streamMockAnalysis, streamMockChat } from '../mocks/claudeMock.ts'
-import { env } from '../config/env.ts'
+import { isMockLLM } from '../utils/mockMode'
+import { streamMockAnalysis, streamMockChat } from '../mocks/claudeMock'
+import { env } from '../config/env'
 
 export interface AdInput {
   platform: string

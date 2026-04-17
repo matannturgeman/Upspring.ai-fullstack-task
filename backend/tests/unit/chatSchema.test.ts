@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ChatBodySchema } from '../../src/schemas/analysis.schemas.ts'
+import { ChatBodySchema } from '../../src/schemas/analysis.schemas'
 
 const VALID_ID = 'a'.repeat(24)
 const VALID_MSG = { role: 'user' as const, content: 'What patterns do you see?' }

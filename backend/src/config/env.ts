@@ -1,4 +1,5 @@
 import { config } from 'dotenv'
+import process from 'process'
 import { z } from 'zod'
 
 config()
@@ -38,17 +39,18 @@ const EnvSchema = z.object({
   COMPETITOR_CACHE_TTL_MS: z.coerce.number().int().min(0).default(600_000),
 })
 
-const parsed = EnvSchema.safeParse(process.env)
+function loadEnv() {
+  const parsed = EnvSchema.safeParse(process.env)
+  if (parsed.success) return parsed.data
 
-if (!parsed.success) {
   console.error('[env] Invalid environment variables:')
   for (const issue of parsed.error.issues) {
     console.error(`  ${issue.path.join('.')}: ${issue.message}`)
   }
-  process.exit(1)
+  throw new Error('Invalid environment variables')
 }
 
-export const env = parsed.data
+export const env = loadEnv()
 
 export type Env = typeof env
 

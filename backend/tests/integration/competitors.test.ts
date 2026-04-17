@@ -1,12 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import request from 'supertest'
-import mongoose from 'mongoose'
-import app from '../../server.ts'
-import Brand from '../../src/models/Brand.ts'
-
-// Integration tests run with MOCK_LLM=true (test env default).
-// We test HTTP validation, cache hit/miss logic, and DB persistence.
-// CompetitorService unit tests cover the Perplexity → Claude fallback.
+import app from '../../server'
+import Brand from '../../src/models/Brand'
 
 afterEach(async () => {
   await Brand.deleteMany({})
@@ -46,7 +41,7 @@ describe('POST /api/competitors/find', () => {
   })
 
   it('returns 400 when brandName is missing', async () => {
-    const fakeId = new mongoose.Types.ObjectId().toString()
+    const fakeId = '507f1f77bcf86cd799439011'
     const res = await request(app).post('/api/competitors/find').send({ brandId: fakeId })
     expect(res.status).toBe(400)
     expect(res.body.error).toBe('INVALID_INPUT')
@@ -134,7 +129,6 @@ describe('POST /api/competitors/find', () => {
       .send({ brandName: 'Nike', brandId: brand._id.toString() })
 
     const updated = await Brand.findById(brand._id).lean()
-    // competitorsFetchedAt should NOT be updated — cache was returned as-is
     expect(updated!.competitorsFetchedAt!.getTime()).toBe(originalDate.getTime())
   })
 })

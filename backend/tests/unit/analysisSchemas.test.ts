@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { AnalysisBodySchema } from '../../src/schemas/analysis.schemas.ts'
+import { AnalysisBodySchema } from '../../src/schemas/analysis.schemas'
 
 describe('AnalysisBodySchema', () => {
   const VALID_ID = 'a'.repeat(24)

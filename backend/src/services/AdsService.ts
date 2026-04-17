@@ -1,12 +1,12 @@
 import { type HydratedDocument } from 'mongoose'
-import Brand, { type IBrand } from '../models/Brand.ts'
-import Ad from '../models/Ad.ts'
-import RawAd from '../models/RawAd.ts'
-import SearchSession from '../models/SearchSession.ts'
-import { RawAdDataSchema } from '../schemas/rawAd.schemas.ts'
-import type { ScraperRegistry } from '../scrapers/ScraperRegistry.ts'
-import type { ExtractionService } from './ExtractionService.ts'
-import { env } from '../config/env.ts'
+import Brand, { type IBrand } from '../models/Brand'
+import Ad from '../models/Ad'
+import RawAd from '../models/RawAd'
+import SearchSession from '../models/SearchSession'
+import { RawAdDataSchema } from '../schemas/rawAd.schemas'
+import type { ScraperRegistry } from '../scrapers/ScraperRegistry'
+import type { ExtractionService } from './ExtractionService'
+import { env } from '../config/env'
 
 export type AdsResult =
   | { empty: true; brand: null; ads: []; message: string }
@@ -99,11 +99,14 @@ export class AdsService {
     // Insert new data first, then clear stale — so a failed insert never leaves zero ads
     const insertedAds = await Ad.insertMany(adDocs)
 
+    const insertedRawAdIds = insertedAds.map((ad: { rawAdId: unknown }) => ad.rawAdId)
+    const insertedAdIds = insertedAds.map((ad: { _id: unknown }) => ad._id)
+
     const oldRawIds = await RawAd.find({
       brandId: brandDoc._id,
-      _id: { $nin: insertedAds.map((a) => a.rawAdId) },
+      _id: { $nin: insertedRawAdIds },
     }).distinct('_id')
-    await Ad.deleteMany({ brandId: brandDoc._id, _id: { $nin: insertedAds.map((a) => a._id) } })
+    await Ad.deleteMany({ brandId: brandDoc._id, _id: { $nin: insertedAdIds } })
     if (oldRawIds.length) await RawAd.deleteMany({ _id: { $in: oldRawIds } })
     const finalBrand = brandDoc as HydratedDocument<IBrand>
 

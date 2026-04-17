@@ -1,10 +1,10 @@
-import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper.ts'
-import { ApifyScraper } from './ApifyScraper.ts'
-import { ScrapingBeeScraper } from './ScrapingBeeScraper.ts'
-import { RapidApiScraper } from './RapidApiScraper.ts'
-import { MockScraper } from './MockScraper.ts'
-import { isMockScraper } from '../utils/mockMode.ts'
-import { env } from '../config/env.ts'
+import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper'
+import { ApifyScraper } from './ApifyScraper'
+import { ScrapingBeeScraper } from './ScrapingBeeScraper'
+import { RapidApiScraper } from './RapidApiScraper'
+import { MockScraper } from './MockScraper'
+import { isMockScraper } from '../utils/mockMode'
+import { env } from '../config/env'
 
 const SCRAPER_FACTORIES: Record<string, () => BaseScraper> = {
   apify: () => new ApifyScraper(),

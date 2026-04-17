@@ -1,27 +1,31 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { Buffer } from 'buffer'
 import request from 'supertest'
-import mongoose from 'mongoose'
-import app from '../../server.ts'
-import { ClaudeService } from '../../src/services/ClaudeService.ts'
-import Brand from '../../src/models/Brand.ts'
-import Ad from '../../src/models/Ad.ts'
+import Brand from '../../src/models/Brand'
+import Ad from '../../src/models/Ad'
 
-vi.mock('../../src/services/ClaudeService.ts')
+const { mockStreamChat, mockStreamAnalysis } = vi.hoisted(() => ({
+  mockStreamChat: vi.fn(),
+  mockStreamAnalysis: vi.fn(),
+}))
 
-const mockStreamChat = vi.fn()
-const mockStreamAnalysis = vi.fn()
+vi.mock('../../src/services/ClaudeService', () => ({
+  ClaudeService: class {
+    streamChat = mockStreamChat
+    streamAnalysis = mockStreamAnalysis
+    extractFields = vi.fn().mockResolvedValue(null)
+    findCompetitorsFromAds = vi.fn().mockResolvedValue([])
+  },
+}))
+
+import app from '../../server'
+
+type StreamLike = {
+  on(event: string, listener: (...args: any[]) => void): void
+}
 
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.mocked(ClaudeService).mockImplementation(
-    () =>
-      ({
-        streamChat: mockStreamChat,
-        streamAnalysis: mockStreamAnalysis,
-        extractFields: vi.fn().mockResolvedValue(null),
-        findCompetitorsFromAds: vi.fn().mockResolvedValue([]),
-      }) as unknown as ClaudeService,
-  )
 })
 
 afterEach(async () => {
@@ -29,7 +33,7 @@ afterEach(async () => {
   await Ad.deleteMany({})
 })
 
-async function createTestBrand(name = 'Nike') {
+async function createTestBrand(name = `Nike-${Math.random().toString(36).slice(2, 8)}`) {
   const brand = await Brand.create({
     name,
     normalizedName: name.toLowerCase(),
@@ -40,10 +44,10 @@ async function createTestBrand(name = 'Nike') {
   return brand
 }
 
-async function createTestAd(brandId: mongoose.Types.ObjectId) {
+async function createTestAd(brandId: unknown) {
   return Ad.create({
     brandId,
-    rawAdId: new mongoose.Types.ObjectId(),
+    rawAdId: '507f1f77bcf86cd799439012',
     extractionMethod: 'code',
     platform: 'Facebook',
     headline: 'Just Do It',
@@ -82,7 +86,7 @@ describe('POST /api/analysis/chat', () => {
   })
 
   it('returns 404 when brand does not exist', async () => {
-    const fakeId = new mongoose.Types.ObjectId().toString()
+    const fakeId = '507f1f77bcf86cd799439011'
     const res = await request(app)
       .post('/api/analysis/chat')
       .send({ brandId: fakeId, messages: VALID_MESSAGES })
@@ -99,7 +103,7 @@ describe('POST /api/analysis/chat', () => {
     })
 
     const brand = await createTestBrand()
-    await createTestAd(brand._id as mongoose.Types.ObjectId)
+    await createTestAd(brand._id)
 
     const res = await request(app)
       .post('/api/analysis/chat')
@@ -107,10 +111,11 @@ describe('POST /api/analysis/chat', () => {
       .buffer(true)
       .parse((res, cb) => {
         let data = ''
-        res.on('data', (chunk: Buffer) => {
-          data += chunk.toString()
+        const stream = res as unknown as StreamLike
+        stream.on('data', (chunk: Uint8Array) => {
+          data += Buffer.from(chunk).toString()
         })
-        res.on('end', () => cb(null, data))
+        stream.on('end', () => cb(null, data))
       })
 
     expect(res.status).toBe(200)
@@ -127,7 +132,7 @@ describe('POST /api/analysis/chat', () => {
     })
 
     const brand = await createTestBrand('Adidas')
-    await createTestAd(brand._id as mongoose.Types.ObjectId)
+    await createTestAd(brand._id)
 
     await request(app)
       .post('/api/analysis/chat')
@@ -135,10 +140,11 @@ describe('POST /api/analysis/chat', () => {
       .buffer(true)
       .parse((res, cb) => {
         let d = ''
-        res.on('data', (c: Buffer) => {
-          d += c.toString()
+        const stream = res as unknown as StreamLike
+        stream.on('data', (c: Uint8Array) => {
+          d += Buffer.from(c).toString()
         })
-        res.on('end', () => cb(null, d))
+        stream.on('end', () => cb(null, d))
       })
 
     expect(mockStreamChat).toHaveBeenCalledWith(
@@ -162,10 +168,11 @@ describe('POST /api/analysis/chat', () => {
       .buffer(true)
       .parse((res, cb) => {
         let d = ''
-        res.on('data', (c: Buffer) => {
-          d += c.toString()
+        const stream = res as unknown as StreamLike
+        stream.on('data', (c: Uint8Array) => {
+          d += Buffer.from(c).toString()
         })
-        res.on('end', () => cb(null, d))
+        stream.on('end', () => cb(null, d))
       })
 
     expect(res.body as string).toContain('PROVIDER_ERROR')

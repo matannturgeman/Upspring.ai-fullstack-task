@@ -1,7 +1,13 @@
-import mongoose from 'mongoose'
+import mongoose = require('mongoose')
+
+type MongoId = unknown
+
+const SchemaTypes = mongoose.Schema as any
+const ObjectIdType = SchemaTypes.Types.ObjectId
+const MixedType = SchemaTypes.Types.Mixed
 
 export interface IRawAd {
-  brandId: mongoose.Types.ObjectId
+  brandId: MongoId
   scraper: string
   scrapedAt: Date
   rawData: unknown
@@ -9,13 +15,12 @@ export interface IRawAd {
 
 const RawAdSchema = new mongoose.Schema<IRawAd>(
   {
-    brandId: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', required: true, index: true },
+    brandId: { type: ObjectIdType, ref: 'Brand', required: true, index: true },
     scraper: { type: String, required: true },
     scrapedAt: { type: Date, default: Date.now },
-    rawData: { type: mongoose.Schema.Types.Mixed, required: true },
+    rawData: { type: MixedType, required: true },
   },
   { timestamps: false },
 )
 
-export default (mongoose.models.RawAd as mongoose.Model<IRawAd>) ??
-  mongoose.model<IRawAd>('RawAd', RawAdSchema)
+export default (mongoose.models.RawAd as any) ?? mongoose.model<IRawAd>('RawAd', RawAdSchema)

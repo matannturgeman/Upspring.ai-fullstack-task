@@ -1,5 +1,5 @@
-import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper.ts'
-import { mockScrapeMetaAds } from '../mocks/apifyMock.ts'
+import { BaseScraper, type ScrapeOptions, type ScrapeResult } from './BaseScraper'
+import { mockScrapeMetaAds } from '../mocks/apifyMock'
 
 export class MockScraper extends BaseScraper {
   readonly name = 'mock'

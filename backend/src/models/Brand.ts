@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose = require('mongoose')
 
 export interface ICompetitor {
   name: string
@@ -26,5 +26,4 @@ const BrandSchema = new mongoose.Schema<IBrand>(
   { timestamps: true },
 )
 
-export default (mongoose.models.Brand as mongoose.Model<IBrand>) ??
-  mongoose.model<IBrand>('Brand', BrandSchema)
+export default (mongoose.models.Brand as any) ?? mongoose.model<IBrand>('Brand', BrandSchema)

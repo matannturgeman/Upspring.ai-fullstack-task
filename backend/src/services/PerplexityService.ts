@@ -1,4 +1,4 @@
-import { env } from '../config/env.ts'
+import { env } from '../config/env'
 
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions'
 
