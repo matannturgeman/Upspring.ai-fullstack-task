@@ -10,17 +10,17 @@ import { AnalysisController } from './controllers/AnalysisController'
 import { CompetitorsController } from './controllers/CompetitorsController'
 
 // Leaves (no dependencies)
-const claudeService = new ClaudeService()
-const geminiService = new GeminiService()
-const perplexityService = new PerplexityService()
+const llmAnalyser = new ClaudeService()                  // swap for any ILLMAnalyser impl
+const videoConverterService = new GeminiService()        // swap for any IVideoAnalyser impl
+const webSearchProvider = new PerplexityService()        // swap for any IWebSearchProvider impl
 const scraperRegistry = new ScraperRegistry()
 
 // Branches
-const extractionService = new ExtractionService(claudeService)
-const competitorService = new CompetitorService(perplexityService, claudeService)
+const extractionService = new ExtractionService(llmAnalyser)
+const competitorService = new CompetitorService(webSearchProvider, llmAnalyser)
 const adsService = new AdsService(scraperRegistry, extractionService)
 
 // Controllers
 export const adsController = new AdsController(adsService)
-export const analysisController = new AnalysisController(claudeService, geminiService)
+export const analysisController = new AnalysisController(llmAnalyser, videoConverterService)
 export const competitorsController = new CompetitorsController(competitorService)

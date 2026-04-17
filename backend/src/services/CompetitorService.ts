@@ -1,8 +1,8 @@
 import { mockFindCompetitors } from '../mocks/perplexityMock'
 import { isMockLLM } from '../utils/mockMode'
 import Ad from '../models/Ad'
-import type { PerplexityService } from './PerplexityService'
-import type { ClaudeService } from './ClaudeService'
+import type { IWebSearchProvider } from './PerplexityService'
+import type { ILLMAnalyser } from './ClaudeService'
 
 export type CompetitorResult = {
   competitors: { name: string; reason: string }[]
@@ -11,8 +11,8 @@ export type CompetitorResult = {
 
 export class CompetitorService {
   constructor(
-    private readonly perplexity: PerplexityService,
-    private readonly claude: ClaudeService,
+    private readonly webSearchProvider: IWebSearchProvider,
+    private readonly llmAnalyser: ILLMAnalyser,
   ) {}
 
   async findCompetitors(brandName: string, brandId: string): Promise<CompetitorResult> {
@@ -22,7 +22,7 @@ export class CompetitorService {
 
     // Strategy 1: Perplexity web search
     try {
-      const competitors = await this.perplexity.searchCompetitors(brandName)
+      const competitors = await this.webSearchProvider.searchCompetitors(brandName)
       if (competitors.length > 0) return { competitors, source: 'perplexity' }
     } catch (err) {
       console.warn('Perplexity failed, falling back to Claude:', (err as Error).message)
@@ -38,7 +38,7 @@ export class CompetitorService {
       .join('\n')
       .slice(0, 2000)
 
-    const competitors = await this.claude.findCompetitorsFromAds(brandName, adContext)
+    const competitors = await this.llmAnalyser.findCompetitorsFromAds(brandName, adContext)
     return { competitors, source: 'claude' }
   }
 }

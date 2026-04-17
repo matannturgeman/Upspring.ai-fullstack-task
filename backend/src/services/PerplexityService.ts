@@ -2,6 +2,10 @@ import { env } from '../config/env'
 
 const PERPLEXITY_API_URL = 'https://api.perplexity.ai/chat/completions'
 
+export interface IWebSearchProvider {
+  searchCompetitors(brandName: string): Promise<{ name: string; reason: string }[]>
+}
+
 export class PerplexityService {
   async searchCompetitors(brandName: string): Promise<{ name: string; reason: string }[]> {
     const prompt = `Who are the top 5 direct competitors of the brand "${brandName}"?

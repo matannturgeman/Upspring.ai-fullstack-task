@@ -5,14 +5,14 @@ import {
   type ExtractionResult,
 } from '../schemas/extraction.schemas'
 import { isMockLLM } from '../utils/mockMode'
-import type { ClaudeService } from './ClaudeService'
+import type { ILLMAnalyser } from './ClaudeService'
 
 export type ExtractionOutput = ExtractionResult & { extractionMethod: 'code' | 'ai' }
 
 const AI_FALLBACK_THRESHOLD = 2
 
 export class ExtractionService {
-  constructor(private readonly claude: ClaudeService) {}
+  constructor(private readonly llmAnalyser: ILLMAnalyser) {}
 
   async extract(rawData: unknown): Promise<ExtractionOutput> {
     // 1. Code extraction — fast, free, deterministic
@@ -24,7 +24,7 @@ export class ExtractionService {
 
     // 2. AI fallback
     if (!isMockLLM()) {
-      const raw = await this.claude.extractFields(rawData)
+      const raw = await this.llmAnalyser.extractFields(rawData)
       if (raw) {
         if (typeof raw.startDate === 'string' && raw.startDate) {
           raw.startDate = new Date(raw.startDate as string)

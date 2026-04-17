@@ -13,6 +13,24 @@ export interface AdInput {
   thumbnailUrl?: string
 }
 
+export interface IVideoAnalyser {
+  streamAnalysis(ad: AdInput): AsyncGenerator<string>
+}
+
+export interface ILLMAnalyser {
+  streamAnalysis(ad: AdInput): AsyncGenerator<string>
+  streamChat(
+    brandName: string,
+    ads: AdInput[],
+    messages: { role: 'user' | 'assistant'; content: string }[],
+  ): AsyncGenerator<string>
+  extractFields(rawData: unknown): Promise<Record<string, unknown> | null>
+  findCompetitorsFromAds(
+    brandName: string,
+    adContext: string,
+  ): Promise<{ name: string; reason: string }[]>
+}
+
 export class ClaudeService {
   private readonly client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
 
