@@ -1,8 +1,8 @@
 import express from 'express'
+import rateLimit from 'express-rate-limit'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import rateLimit from 'express-rate-limit'
 import { connectDB } from './src/config/db.ts'
 import { env } from './src/config/env.ts'
 import { errorHandler } from './src/middleware/errorHandler.ts'
@@ -16,15 +16,14 @@ const app = express()
 
 const REQUEST_TIMEOUT_MS = 30_000
 const JSON_BODY_LIMIT = '50kb'
-const RATE_LIMIT_WINDOW_MS = 60_000
-const RATE_LIMIT_MAX = env.NODE_ENV === 'production' ? 30 : 500
-
 app.use(helmet())
 app.use(cors({ origin: env.FRONTEND_URL, credentials: true, methods: ['GET', 'POST'] }))
 app.use(express.json({ limit: JSON_BODY_LIMIT }))
 app.use(morgan('dev'))
 app.use(timeoutMiddleware(REQUEST_TIMEOUT_MS))
-app.use(rateLimit({ windowMs: RATE_LIMIT_WINDOW_MS, max: RATE_LIMIT_MAX, standardHeaders: true, legacyHeaders: false }))
+if (env.NODE_ENV === 'production') {
+  app.use(rateLimit({ windowMs: 60_000, max: 30, standardHeaders: true, legacyHeaders: false }))
+}
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }))
 
