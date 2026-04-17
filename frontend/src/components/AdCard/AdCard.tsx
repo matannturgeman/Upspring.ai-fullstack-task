@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { apiUrl } from '../../config/api.ts'
 import type { AdDto } from '../../types/ad.types.ts'
 import { useAnalysis } from '../../hooks/useAnalysis.ts'
 import { useAppStore } from '../../store/appStore.ts'
@@ -16,7 +17,7 @@ export function AdCard({ ad }: Props) {
   }))
 
   const mediaUrl = ad.thumbnailUrl || ad.imageUrl
-  const proxyUrl = mediaUrl ? `/api/proxy/image?url=${encodeURIComponent(mediaUrl)}` : null
+  const proxyUrl = mediaUrl ? apiUrl(`/proxy/image?url=${encodeURIComponent(mediaUrl)}`) : null
 
   const isSelected = selectedAdId === ad._id
   const isAnalyzing = isSelected && analysisLoading

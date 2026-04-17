@@ -1,7 +1,8 @@
 import axios from 'axios'
+import { API_BASE_URL } from '../config/api.ts'
 import type { AdsResponse } from '../types/ad.types.ts'
 
-const api = axios.create({ baseURL: '/api' })
+const api = axios.create({ baseURL: API_BASE_URL })
 
 api.interceptors.response.use(
   (res) => res,

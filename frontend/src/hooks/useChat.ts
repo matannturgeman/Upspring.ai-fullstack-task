@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { apiUrl } from '../config/api.ts'
 import { useAppStore } from '../store/appStore.ts'
 
 export function useChat() {
@@ -40,7 +41,7 @@ export function useChat() {
     ]
 
     try {
-      const res = await fetch('/api/analysis/chat', {
+      const res = await fetch(apiUrl('/analysis/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ brandId, messages: history }),

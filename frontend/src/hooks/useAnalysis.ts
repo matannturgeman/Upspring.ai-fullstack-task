@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { apiUrl } from '../config/api.ts'
 import { useAppStore } from '../store/appStore.ts'
 
 export function useAnalysis() {
@@ -26,7 +27,7 @@ export function useAnalysis() {
     addMessage({ id: msgId, role: 'ai', text: '', streaming: true })
 
     try {
-      const res = await fetch('/api/analysis', {
+      const res = await fetch(apiUrl('/analysis'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adId }),
