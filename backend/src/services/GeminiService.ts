@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { GoogleAIFileManager } from '@google/generative-ai/server'
-import { Buffer } from 'buffer'
+import { writeFileSync, unlinkSync } from 'fs'
+import { tmpdir } from 'os'
+import { join } from 'path'
 import { isMockLLM } from '../utils/mockMode'
 import { streamMockAnalysis } from '../mocks/claudeMock'
 import { env } from '../config/env'
@@ -22,16 +24,22 @@ export class GeminiService {
     const fileManager = new GoogleAIFileManager(env.GEMINI_API_KEY)
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
-    // 1. Download video buffer from CDN URL
+    // 1. Download video and write to temp file (uploadFile expects a file path)
     const resp = await fetch(ad.videoUrl!)
     if (!resp.ok) throw new Error(`Failed to fetch video: ${resp.status}`)
-    const buffer = Buffer.from(new Uint8Array(await resp.arrayBuffer()))
+    const tmpPath = join(tmpdir(), `ad-video-${Date.now()}.mp4`)
+    writeFileSync(tmpPath, Buffer.from(await resp.arrayBuffer()))
 
     // 2. Upload to Gemini Files API
-    const { file: uploaded } = await fileManager.uploadFile(buffer, {
-      mimeType: 'video/mp4',
-      displayName: `ad-${Date.now()}`,
-    })
+    let uploaded
+    try {
+      ;({ file: uploaded } = await fileManager.uploadFile(tmpPath, {
+        mimeType: 'video/mp4',
+        displayName: `ad-${Date.now()}`,
+      }))
+    } finally {
+      try { unlinkSync(tmpPath) } catch { /* best-effort cleanup */ }
+    }
 
     // 3. Poll until ACTIVE (max 30s)
     let file = uploaded
