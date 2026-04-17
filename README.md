@@ -68,19 +68,26 @@ cd frontend && npm test         # component unit tests
 cd frontend && npm run test:e2e # Playwright E2E
 ```
 
+## Live
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://upspring-ai-frontend.vercel.app/ |
+| Backend | https://upspring-ai-fullstack-task.onrender.com/health |
+
 ## Deployment
 
-### Backend → Railway
+### Backend → Render
 
-1. New Project → Deploy from GitHub → set root directory to `backend/`
+1. New Web Service → Deploy from GitHub → set root directory to `backend/`
 2. Add env vars: `MONGODB_URI`, `APIFY_API_TOKEN`, `ANTHROPIC_API_KEY`, `PERPLEXITY_API_KEY`, `FRONTEND_URL`, `NODE_ENV=production`
-3. Railway detects Node.js and uses the `Dockerfile`
+3. Render detects Node.js and uses the `Dockerfile`
 
 ### Frontend → Vercel
 
 1. New Project → Import repo → set root directory to `frontend/`
-2. Add env var: `VITE_API_URL=https://<your-railway-url>`
-3. Update `frontend/src/api/adsApi.ts`: `baseURL: import.meta.env.VITE_API_URL || '/api'`
+2. Add env var: `VITE_API_BASE_URL=https://<your-render-url>`
+3. Deploy
 
 ---
 
