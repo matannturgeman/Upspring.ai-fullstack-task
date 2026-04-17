@@ -23,10 +23,12 @@ export const ChatBodySchema = z.object({
     .min(1, 'brandId is required')
     .regex(OBJECT_ID_REGEX, 'brandId must be a valid ObjectId'),
   messages: z
-    .array(z.object({
-      role: z.enum(['user', 'assistant']),
-      content: z.string().min(1),
-    }))
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string().min(1),
+      }),
+    )
     .min(1)
     .max(40),
 })

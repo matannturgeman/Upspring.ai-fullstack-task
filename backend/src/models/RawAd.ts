@@ -14,7 +14,7 @@ const RawAdSchema = new mongoose.Schema<IRawAd>(
     scrapedAt: { type: Date, default: Date.now },
     rawData: { type: mongoose.Schema.Types.Mixed, required: true },
   },
-  { timestamps: false }
+  { timestamps: false },
 )
 
 export default (mongoose.models.RawAd as mongoose.Model<IRawAd>) ??

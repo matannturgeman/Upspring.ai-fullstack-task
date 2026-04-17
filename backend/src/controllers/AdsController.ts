@@ -11,7 +11,7 @@ export class AdsController {
     try {
       const parsed = AdsQuerySchema.safeParse(req.query)
       if (!parsed.success) {
-        const missing = parsed.error.issues.some(i => i.path.includes('brand'))
+        const missing = parsed.error.issues.some((i) => i.path.includes('brand'))
         res.status(StatusCodes.BAD_REQUEST).json({
           error: true,
           message: missing ? 'brand query param required' : parsed.error.issues[0].message,
@@ -26,10 +26,12 @@ export class AdsController {
       try {
         result = await this.adsService.getAds(brand, limit, forceRefresh ?? false)
       } catch (err) {
-        return next(Object.assign(new Error(`Ads provider error: ${(err as Error).message}`), {
-          status: StatusCodes.BAD_GATEWAY,
-          code: 'PROVIDER_ERROR',
-        }))
+        return next(
+          Object.assign(new Error(`Ads provider error: ${(err as Error).message}`), {
+            status: StatusCodes.BAD_GATEWAY,
+            code: 'PROVIDER_ERROR',
+          }),
+        )
       }
 
       res.json(result)
@@ -42,7 +44,9 @@ export class AdsController {
     try {
       const ads = await Ad.find({ brandId: req.params.brandId }).lean()
       if (!ads.length) {
-        res.status(StatusCodes.NOT_FOUND).json({ error: true, message: 'No ads found', code: 'NOT_FOUND' })
+        res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ error: true, message: 'No ads found', code: 'NOT_FOUND' })
         return
       }
       res.json({ ads })

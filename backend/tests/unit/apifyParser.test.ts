@@ -46,7 +46,12 @@ describe('codeExtract', () => {
       id: 'v1',
       snapshot: {
         images: [{ url: 'https://img.com/static.jpg' }],
-        videos: [{ video_preview_image_url: 'https://img.com/thumb.jpg', video_hd_url: 'https://vid.com/hd.mp4' }],
+        videos: [
+          {
+            video_preview_image_url: 'https://img.com/thumb.jpg',
+            video_hd_url: 'https://vid.com/hd.mp4',
+          },
+        ],
       },
     }
     const ad = codeExtract(raw)

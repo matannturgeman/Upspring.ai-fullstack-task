@@ -22,12 +22,10 @@ export const createChatSlice: StateCreator<ChatSlice> = (set) => ({
   chatError: null,
 
   setChatOpen: (v) => set({ chatOpen: v }),
-  addChatMessage: (msg) => set(s => ({ chatMessages: [...s.chatMessages, msg] })),
+  addChatMessage: (msg) => set((s) => ({ chatMessages: [...s.chatMessages, msg] })),
   updateChatMessage: (id, text, streaming) =>
-    set(s => ({
-      chatMessages: s.chatMessages.map(m =>
-        m.id === id ? { ...m, text, streaming } : m
-      ),
+    set((s) => ({
+      chatMessages: s.chatMessages.map((m) => (m.id === id ? { ...m, text, streaming } : m)),
     })),
   clearChatMessages: () => set({ chatMessages: [] }),
   setChatLoading: (v) => set({ chatLoading: v }),

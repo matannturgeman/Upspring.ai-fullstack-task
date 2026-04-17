@@ -22,14 +22,18 @@ export function CompetitorPanel() {
       </div>
 
       {error && (
-        <p role="alert" className="text-xs text-red-500 dark:text-red-400 mb-2">{error}</p>
+        <p role="alert" className="text-xs text-red-500 dark:text-red-400 mb-2">
+          {error}
+        </p>
       )}
 
       {source && !error && (
         <p className="text-xs text-gray-400 dark:text-gray-500 italic mb-3">
-          {source === 'perplexity' ? 'Via web search' :
-           source === 'claude'     ? 'Via AI reasoning from ad content' :
-                                     'Mock data'}
+          {source === 'perplexity'
+            ? 'Via web search'
+            : source === 'claude'
+              ? 'Via AI reasoning from ad content'
+              : 'Mock data'}
         </p>
       )}
 
@@ -40,7 +44,7 @@ export function CompetitorPanel() {
       )}
 
       <ul className="space-y-2" role="list">
-        {competitors.map(c => (
+        {competitors.map((c) => (
           <li key={c.name}>
             <button
               onClick={() => selectCompetitor(c)}
@@ -52,7 +56,9 @@ export function CompetitorPanel() {
               }`}
             >
               <p className="font-medium text-xs text-gray-900 dark:text-gray-100">{c.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{c.reason}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">
+                {c.reason}
+              </p>
             </button>
           </li>
         ))}

@@ -12,7 +12,7 @@ export class AnalysisController {
   private async streamToSSE(
     res: Response,
     generator: AsyncGenerator<string>,
-    label: string
+    label: string,
   ): Promise<void> {
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache')
@@ -73,7 +73,9 @@ export class AnalysisController {
     ])
 
     if (!brand) {
-      res.status(StatusCodes.NOT_FOUND).json({ error: 'BRAND_NOT_FOUND', message: 'Brand not found' })
+      res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: 'BRAND_NOT_FOUND', message: 'Brand not found' })
       return
     }
 

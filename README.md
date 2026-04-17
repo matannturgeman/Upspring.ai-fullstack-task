@@ -3,6 +3,7 @@
 A creative intelligence tool for marketers to research brand ads, analyze them with AI, and discover competitors.
 
 ## Features
+
 - Search any brand → fetch real public Meta ads via Apify
 - Browse ads with image previews, metadata, status
 - Ask AI questions about the ads (multimodal — Claude analyzes images + text)
@@ -10,6 +11,7 @@ A creative intelligence tool for marketers to research brand ads, analyze them w
 - Click a competitor → explore their ads in the same flow
 
 ## Stack
+
 - **Frontend**: React + Vite + Tailwind CSS + Zustand
 - **Backend**: Node.js + Express
 - **DB**: MongoDB (Docker locally, Atlas in production)
@@ -20,10 +22,12 @@ A creative intelligence tool for marketers to research brand ads, analyze them w
 ## Local Setup
 
 ### Prerequisites
+
 - Node.js 20+
 - Docker Desktop (for MongoDB)
 
 ### 1. Clone & install
+
 ```bash
 git clone https://github.com/matannturgeman/Upspring.ai-fullstack-task.git
 cd Upspring.ai-fullstack-task
@@ -32,17 +36,20 @@ cd ../frontend && npm install
 ```
 
 ### 2. Start MongoDB
+
 ```bash
 docker compose up -d mongo
 ```
 
 ### 3. Configure environment
+
 ```bash
 cp backend/.env.example backend/.env
 # Fill in: APIFY_API_TOKEN, ANTHROPIC_API_KEY, PERPLEXITY_API_KEY
 ```
 
 ### 4. Run
+
 ```bash
 # Terminal 1 — backend
 cd backend && npm run dev
@@ -54,6 +61,7 @@ cd frontend && npm run dev
 App runs at http://localhost:5173
 
 ## Running Tests
+
 ```bash
 cd backend && npm test          # unit + integration
 cd frontend && npm test         # component unit tests
@@ -63,11 +71,13 @@ cd frontend && npm run test:e2e # Playwright E2E
 ## Deployment
 
 ### Backend → Railway
+
 1. New Project → Deploy from GitHub → set root directory to `backend/`
 2. Add env vars: `MONGODB_URI`, `APIFY_API_TOKEN`, `ANTHROPIC_API_KEY`, `PERPLEXITY_API_KEY`, `FRONTEND_URL`, `NODE_ENV=production`
 3. Railway detects Node.js and uses the `Dockerfile`
 
 ### Frontend → Vercel
+
 1. New Project → Import repo → set root directory to `frontend/`
 2. Add env var: `VITE_API_URL=https://<your-railway-url>`
 3. Update `frontend/src/api/adsApi.ts`: `baseURL: import.meta.env.VITE_API_URL || '/api'`
@@ -92,13 +102,13 @@ cd frontend && npm run test:e2e # Playwright E2E
 
 ## What Would Break First at Scale
 
-| Component | Bottleneck | Fix |
-|---|---|---|
-| Apify scraping | Rate limits + cost | Queue with BullMQ, cache aggressively, pre-fetch popular brands |
-| Claude vision | Cost per image | Resize images before sending, cache AI responses per ad |
-| MongoDB | Single instance | Replica set, read replicas, TTL tuning |
-| SSE connections | Open connections per user | WebSockets or short-poll for horizontal scale |
-| No job queue | Long scrapes block requests | Background jobs (BullMQ/Redis) + polling endpoint |
+| Component       | Bottleneck                  | Fix                                                             |
+| --------------- | --------------------------- | --------------------------------------------------------------- |
+| Apify scraping  | Rate limits + cost          | Queue with BullMQ, cache aggressively, pre-fetch popular brands |
+| Claude vision   | Cost per image              | Resize images before sending, cache AI responses per ad         |
+| MongoDB         | Single instance             | Replica set, read replicas, TTL tuning                          |
+| SSE connections | Open connections per user   | WebSockets or short-poll for horizontal scale                   |
+| No job queue    | Long scrapes block requests | Background jobs (BullMQ/Redis) + polling endpoint               |
 
 ---
 
@@ -113,4 +123,5 @@ cd frontend && npm run test:e2e # Playwright E2E
 ---
 
 ## Docs
+
 See [`/docs`](./docs/) for full implementation plans broken down by phase.

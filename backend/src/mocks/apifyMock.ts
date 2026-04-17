@@ -52,11 +52,16 @@ export async function mockScrapeMetaAds(
   brandName: string,
   { limit = 20 }: { limit?: number } = {},
 ): Promise<ScrapeResult> {
-  await new Promise(r => setTimeout(r, 800))
-  const ads = MOCK_ADS.slice(0, limit).map(ad => ({
+  await new Promise((r) => setTimeout(r, 800))
+  const ads = MOCK_ADS.slice(0, limit).map((ad) => ({
     ...ad,
     page_name: brandName,
-    ad_creative_link_titles: [(ad as { ad_creative_link_titles: string[] }).ad_creative_link_titles[0].replace('Nike', brandName)],
+    ad_creative_link_titles: [
+      (ad as { ad_creative_link_titles: string[] }).ad_creative_link_titles[0].replace(
+        'Nike',
+        brandName,
+      ),
+    ],
   }))
   return { ads, partial: false, empty: false, scraper: 'mock' }
 }

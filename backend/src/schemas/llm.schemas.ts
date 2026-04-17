@@ -20,13 +20,15 @@ export const AnthropicStreamEventSchema = z.object({
 
 // Perplexity API response shape
 export const PerplexityResponseSchema = z.object({
-  choices: z.array(
-    z.object({
-      message: z.object({
-        content: z.string(),
+  choices: z
+    .array(
+      z.object({
+        message: z.object({
+          content: z.string(),
+        }),
       }),
-    })
-  ).min(1),
+    )
+    .min(1),
 })
 export type PerplexityResponse = z.infer<typeof PerplexityResponseSchema>
 

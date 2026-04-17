@@ -26,7 +26,7 @@ Only return the JSON array, no other text.`
 
     if (!response.ok) throw new Error(`Perplexity error: ${response.status}`)
 
-    const data = await response.json() as { choices?: { message?: { content?: string } }[] }
+    const data = (await response.json()) as { choices?: { message?: { content?: string } }[] }
     const content = data.choices?.[0]?.message?.content ?? ''
 
     const match = content.match(/\[[\s\S]*\]/)

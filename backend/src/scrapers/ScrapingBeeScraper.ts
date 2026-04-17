@@ -48,7 +48,7 @@ export class ScrapingBeeScraper extends BaseScraper {
 
     if (results.length === 0) return { ads: [], partial: false, empty: true, scraper: this.name }
 
-    const ads = results.map(r => ({
+    const ads = results.map((r) => ({
       id: r.adArchiveID ?? r.adid,
       page_name: r.pageName ?? brandName,
       ad_creative_bodies: (r.snapshot as Record<string, unknown>)?.body

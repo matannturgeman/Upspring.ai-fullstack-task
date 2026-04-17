@@ -3,9 +3,25 @@ import { test, expect } from '@playwright/test'
 const ADS_ROUTE = '**/api/ads**'
 
 const MOCK_ADS = {
-  empty: false, fromCache: false,
-  brand: { _id: 'b1', name: 'Nike', normalizedName: 'nike', lastFetched: new Date().toISOString(), adCount: 1 },
-  ads: [{ _id: 'ad1', brandId: 'b1', platform: 'Facebook', status: 'ACTIVE', performanceData: null, headline: 'Test Ad' }],
+  empty: false,
+  fromCache: false,
+  brand: {
+    _id: 'b1',
+    name: 'Nike',
+    normalizedName: 'nike',
+    lastFetched: new Date().toISOString(),
+    adCount: 1,
+  },
+  ads: [
+    {
+      _id: 'ad1',
+      brandId: 'b1',
+      platform: 'Facebook',
+      status: 'ACTIVE',
+      performanceData: null,
+      headline: 'Test Ad',
+    },
+  ],
 }
 
 test.describe('Accessibility', () => {
@@ -39,8 +55,12 @@ test.describe('Accessibility', () => {
   })
 
   test('ad cards use article role after search', async ({ page }) => {
-    await page.route(ADS_ROUTE, route =>
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_ADS) })
+    await page.route(ADS_ROUTE, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(MOCK_ADS),
+      }),
     )
     await page.getByLabel(/Brand name/i).fill('Nike')
     await page.getByRole('button', { name: /^Search$/i }).click()
@@ -49,9 +69,13 @@ test.describe('Accessibility', () => {
   })
 
   test('loading spinner has role=status', async ({ page }) => {
-    await page.route(ADS_ROUTE, async route => {
-      await new Promise(r => setTimeout(r, 800))
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_ADS) })
+    await page.route(ADS_ROUTE, async (route) => {
+      await new Promise((r) => setTimeout(r, 800))
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(MOCK_ADS),
+      })
     })
 
     await page.getByLabel(/Brand name/i).fill('Nike')
@@ -61,14 +85,19 @@ test.describe('Accessibility', () => {
   })
 
   test('analysis panel has role=dialog and aria-modal', async ({ page }) => {
-    await page.route(ADS_ROUTE, route =>
-      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_ADS) })
-    )
-    await page.route('**/api/analysis', route =>
+    await page.route(ADS_ROUTE, (route) =>
       route.fulfill({
-        status: 200, contentType: 'text/event-stream',
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(MOCK_ADS),
+      }),
+    )
+    await page.route('**/api/analysis', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'text/event-stream',
         body: 'data: {"text":"Analysis."}\n\ndata: [DONE]\n\n',
-      })
+      }),
     )
 
     await page.getByLabel(/Brand name/i).fill('Nike')

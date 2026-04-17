@@ -5,10 +5,17 @@ import { fetchAds } from '../api/adsApi.ts'
 export function useAds() {
   const abortRef = useRef<AbortController | null>(null)
   const {
-    setCurrentBrand, setAds, setAdsLoading,
-    setAdsError, setAdsEmpty, setFromCache, clearMessages,
-    clearChatMessages, setChatOpen,
-    setCompetitors, setSelectedCompetitor,
+    setCurrentBrand,
+    setAds,
+    setAdsLoading,
+    setAdsError,
+    setAdsEmpty,
+    setFromCache,
+    clearMessages,
+    clearChatMessages,
+    setChatOpen,
+    setCompetitors,
+    setSelectedCompetitor,
   } = useAppStore()
 
   async function search(brandName: string, options: { forceRefresh?: boolean } = {}) {

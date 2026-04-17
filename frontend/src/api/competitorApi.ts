@@ -8,7 +8,10 @@ export interface CompetitorsResponse {
   disclaimer: string
 }
 
-export async function findCompetitors(brandName: string, brandId: string): Promise<CompetitorsResponse> {
+export async function findCompetitors(
+  brandName: string,
+  brandId: string,
+): Promise<CompetitorsResponse> {
   const { data } = await api.post<CompetitorsResponse>('/competitors/find', { brandName, brandId })
   return data
 }

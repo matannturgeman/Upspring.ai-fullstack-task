@@ -9,8 +9,7 @@ vi.mock('../../src/hooks/useAds.ts', () => ({
 }))
 
 vi.mock('../../src/store/appStore.ts', () => ({
-  useAppStore: (sel: (s: { adsLoading: boolean }) => unknown) =>
-    sel({ adsLoading: false }),
+  useAppStore: (sel: (s: { adsLoading: boolean }) => unknown) => sel({ adsLoading: false }),
 }))
 
 beforeEach(() => mockSearch.mockClear())

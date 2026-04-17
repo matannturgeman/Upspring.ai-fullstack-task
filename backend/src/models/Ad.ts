@@ -32,8 +32,7 @@ const AdSchema = new mongoose.Schema<IAd>(
     status: { type: String, enum: ['ACTIVE', 'INACTIVE', 'UNKNOWN'], default: 'UNKNOWN' },
     performanceData: { type: mongoose.Schema.Types.Mixed, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 )
 
-export default (mongoose.models.Ad as mongoose.Model<IAd>) ??
-  mongoose.model<IAd>('Ad', AdSchema)
+export default (mongoose.models.Ad as mongoose.Model<IAd>) ?? mongoose.model<IAd>('Ad', AdSchema)

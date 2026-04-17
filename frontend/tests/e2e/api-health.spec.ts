@@ -18,7 +18,9 @@ test.describe('Backend API', () => {
     expect(body.code).toBe('MISSING_BRAND')
   })
 
-  test('GET /api/ads with brand returns 200 with ads array (MOCK_LLM=true required)', async ({ request }) => {
+  test('GET /api/ads with brand returns 200 with ads array (MOCK_LLM=true required)', async ({
+    request,
+  }) => {
     const res = await request.get(`${API}/api/ads?brand=Nike&limit=3`, { timeout: 15_000 })
     expect(res.status()).toBe(200)
     const body = await res.json()
@@ -36,7 +38,9 @@ test.describe('Backend API', () => {
     expect(body.code).toBe('MISSING_PARAMS')
   })
 
-  test('POST /api/competitors/find with valid brand returns competitors (MOCK_LLM=true required)', async ({ request }) => {
+  test('POST /api/competitors/find with valid brand returns competitors (MOCK_LLM=true required)', async ({
+    request,
+  }) => {
     // First get a real brandId from the DB via a search
     const adsRes = await request.get(`${API}/api/ads?brand=Nike&limit=1`, { timeout: 15_000 })
     expect(adsRes.status()).toBe(200)
@@ -50,7 +54,10 @@ test.describe('Backend API', () => {
     const body = await res.json()
     expect(Array.isArray(body.competitors)).toBe(true)
     expect(body.competitors.length).toBeGreaterThan(0)
-    expect(body.competitors[0]).toMatchObject({ name: expect.any(String), reason: expect.any(String) })
+    expect(body.competitors[0]).toMatchObject({
+      name: expect.any(String),
+      reason: expect.any(String),
+    })
     expect(body.source).toBeTruthy()
   })
 
@@ -69,7 +76,9 @@ test.describe('Backend API', () => {
   })
 
   test('POST /api/analysis with valid but non-existent adId returns 404', async ({ request }) => {
-    const res = await request.post(`${API}/api/analysis`, { data: { adId: 'aabbccddeeff001122334455' } })
+    const res = await request.post(`${API}/api/analysis`, {
+      data: { adId: 'aabbccddeeff001122334455' },
+    })
     expect(res.status()).toBe(404)
     const body = await res.json()
     expect(body.error).toBe('AD_NOT_FOUND')
@@ -83,19 +92,25 @@ test.describe('Backend API', () => {
   })
 
   test('GET /api/proxy/image with disallowed URL returns 403', async ({ request }) => {
-    const res = await request.get(`${API}/api/proxy/image?url=${encodeURIComponent('https://evil.com/img.jpg')}`)
+    const res = await request.get(
+      `${API}/api/proxy/image?url=${encodeURIComponent('https://evil.com/img.jpg')}`,
+    )
     expect(res.status()).toBe(403)
     const body = await res.json()
     expect(body.code).toBe('DISALLOWED_URL')
   })
 
   test('SSRF blocked: localhost URL returns 403', async ({ request }) => {
-    const res = await request.get(`${API}/api/proxy/image?url=${encodeURIComponent('https://localhost/secret')}`)
+    const res = await request.get(
+      `${API}/api/proxy/image?url=${encodeURIComponent('https://localhost/secret')}`,
+    )
     expect(res.status()).toBe(403)
   })
 
   test('SSRF blocked: internal IP returns 403', async ({ request }) => {
-    const res = await request.get(`${API}/api/proxy/image?url=${encodeURIComponent('https://127.0.0.1/secret')}`)
+    const res = await request.get(
+      `${API}/api/proxy/image?url=${encodeURIComponent('https://127.0.0.1/secret')}`,
+    )
     expect(res.status()).toBe(403)
   })
 })

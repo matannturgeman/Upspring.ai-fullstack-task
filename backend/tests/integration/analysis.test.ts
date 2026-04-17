@@ -13,12 +13,15 @@ const mockStreamAnalysis = vi.fn()
 
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.mocked(ClaudeService).mockImplementation(() => ({
-    streamChat: mockStreamChat,
-    streamAnalysis: mockStreamAnalysis,
-    extractFields: vi.fn().mockResolvedValue(null),
-    findCompetitorsFromAds: vi.fn().mockResolvedValue([]),
-  }) as unknown as ClaudeService)
+  vi.mocked(ClaudeService).mockImplementation(
+    () =>
+      ({
+        streamChat: mockStreamChat,
+        streamAnalysis: mockStreamAnalysis,
+        extractFields: vi.fn().mockResolvedValue(null),
+        findCompetitorsFromAds: vi.fn().mockResolvedValue([]),
+      }) as unknown as ClaudeService,
+  )
 })
 
 afterEach(async () => {
@@ -53,9 +56,7 @@ describe('POST /api/analysis/chat', () => {
   const VALID_MESSAGES = [{ role: 'user', content: 'What messaging angles are used most?' }]
 
   it('returns 400 when brandId is missing', async () => {
-    const res = await request(app)
-      .post('/api/analysis/chat')
-      .send({ messages: VALID_MESSAGES })
+    const res = await request(app).post('/api/analysis/chat').send({ messages: VALID_MESSAGES })
 
     expect(res.status).toBe(400)
     expect(res.body.error).toBe('INVALID_INPUT')
@@ -106,7 +107,9 @@ describe('POST /api/analysis/chat', () => {
       .buffer(true)
       .parse((res, cb) => {
         let data = ''
-        res.on('data', (chunk: Buffer) => { data += chunk.toString() })
+        res.on('data', (chunk: Buffer) => {
+          data += chunk.toString()
+        })
         res.on('end', () => cb(null, data))
       })
 
@@ -119,7 +122,9 @@ describe('POST /api/analysis/chat', () => {
   })
 
   it('calls streamChat with brand name and fetched ads', async () => {
-    mockStreamChat.mockImplementation(async function* () { yield 'ok' })
+    mockStreamChat.mockImplementation(async function* () {
+      yield 'ok'
+    })
 
     const brand = await createTestBrand('Adidas')
     await createTestAd(brand._id as mongoose.Types.ObjectId)
@@ -130,14 +135,16 @@ describe('POST /api/analysis/chat', () => {
       .buffer(true)
       .parse((res, cb) => {
         let d = ''
-        res.on('data', (c: Buffer) => { d += c.toString() })
+        res.on('data', (c: Buffer) => {
+          d += c.toString()
+        })
         res.on('end', () => cb(null, d))
       })
 
     expect(mockStreamChat).toHaveBeenCalledWith(
       'Adidas',
       expect.arrayContaining([expect.objectContaining({ headline: 'Just Do It' })]),
-      VALID_MESSAGES
+      VALID_MESSAGES,
     )
   })
 
@@ -155,7 +162,9 @@ describe('POST /api/analysis/chat', () => {
       .buffer(true)
       .parse((res, cb) => {
         let d = ''
-        res.on('data', (c: Buffer) => { d += c.toString() })
+        res.on('data', (c: Buffer) => {
+          d += c.toString()
+        })
         res.on('end', () => cb(null, d))
       })
 

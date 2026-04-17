@@ -28,11 +28,11 @@ export const createAnalysisSlice: StateCreator<AnalysisSlice> = (set) => ({
   analysisLoading: false,
   analysisError: null,
 
-  addMessage: (msg) => set(s => ({ analysisMessages: [...s.analysisMessages, msg] })),
+  addMessage: (msg) => set((s) => ({ analysisMessages: [...s.analysisMessages, msg] })),
   updateLastMessage: (id, text, streaming) =>
-    set(s => ({
-      analysisMessages: s.analysisMessages.map(m =>
-        m.id === id ? { ...m, text, streaming } : m
+    set((s) => ({
+      analysisMessages: s.analysisMessages.map((m) =>
+        m.id === id ? { ...m, text, streaming } : m,
       ),
     })),
   clearMessages: () => set({ analysisMessages: [] }),

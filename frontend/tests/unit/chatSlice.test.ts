@@ -36,7 +36,7 @@ describe('chatSlice', () => {
     const store = makeStore()
     store.getState().addChatMessage({ id: '1', role: 'user', text: 'Q' })
     store.getState().addChatMessage({ id: '2', role: 'ai', text: 'A' })
-    const ids = store.getState().chatMessages.map(m => m.id)
+    const ids = store.getState().chatMessages.map((m) => m.id)
     expect(ids).toEqual(['1', '2'])
   })
 

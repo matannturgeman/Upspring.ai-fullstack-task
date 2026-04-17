@@ -4,31 +4,39 @@ import { z } from 'zod'
 // Test the schema logic in isolation without importing env.ts directly
 // (env.ts calls process.exit(1) on failure, which would kill the test runner)
 const EnvSchema = z.object({
-  MONGODB_URI:        z.string().min(1),
-  ANTHROPIC_API_KEY:  z.string().min(1),
+  MONGODB_URI: z.string().min(1),
+  ANTHROPIC_API_KEY: z.string().min(1),
   PERPLEXITY_API_KEY: z.string().min(1),
-  APIFY_API_TOKEN:    z.string().min(1),
+  APIFY_API_TOKEN: z.string().min(1),
 
-  PORT:         z.coerce.number().int().min(1).max(65535).default(4000),
-  NODE_ENV:     z.enum(['development', 'test', 'production']).default('development'),
+  PORT: z.coerce.number().int().min(1).max(65535).default(4000),
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   FRONTEND_URL: z.string().optional(),
 
-  MOCK_LLM:     z.string().optional().default('false').transform(v => v === 'true'),
-  MOCK_SCRAPER: z.string().optional().default('false').transform(v => v === 'true'),
+  MOCK_LLM: z
+    .string()
+    .optional()
+    .default('false')
+    .transform((v) => v === 'true'),
+  MOCK_SCRAPER: z
+    .string()
+    .optional()
+    .default('false')
+    .transform((v) => v === 'true'),
 
-  SCRAPER_PRIORITY:    z.string().default('apify'),
+  SCRAPER_PRIORITY: z.string().default('apify'),
   SCRAPINGBEE_API_KEY: z.string().optional(),
-  RAPIDAPI_KEY:        z.string().optional(),
-  RAPIDAPI_HOST:       z.string().optional(),
+  RAPIDAPI_KEY: z.string().optional(),
+  RAPIDAPI_HOST: z.string().optional(),
 
   BRAND_CACHE_TTL_MS: z.coerce.number().int().min(0).default(600_000),
 })
 
 const VALID_BASE = {
-  MONGODB_URI:        'mongodb://localhost/test',
-  ANTHROPIC_API_KEY:  'sk-ant-test',
+  MONGODB_URI: 'mongodb://localhost/test',
+  ANTHROPIC_API_KEY: 'sk-ant-test',
   PERPLEXITY_API_KEY: 'pplx-test',
-  APIFY_API_TOKEN:    'apify-test',
+  APIFY_API_TOKEN: 'apify-test',
 }
 
 describe('EnvSchema', () => {

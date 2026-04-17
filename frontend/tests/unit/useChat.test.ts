@@ -17,7 +17,7 @@ vi.mock('../../src/store/appStore.ts', () => ({
 
 function makeStreamResponse(chunks: string[]) {
   const lines = [
-    ...chunks.map(c => `data: ${JSON.stringify({ text: c })}\n\n`),
+    ...chunks.map((c) => `data: ${JSON.stringify({ text: c })}\n\n`),
     'data: [DONE]\n\n',
   ].join('')
 
@@ -27,7 +27,10 @@ function makeStreamResponse(chunks: string[]) {
 
   const stream = new ReadableStream({
     pull(controller) {
-      if (pos >= encoded.length) { controller.close(); return }
+      if (pos >= encoded.length) {
+        controller.close()
+        return
+      }
       controller.enqueue(encoded.slice(pos, pos + 50))
       pos += 50
     },
@@ -43,7 +46,9 @@ describe('useChat', () => {
     vi.clearAllMocks()
     mockStore.chatMessages = []
     vi.stubGlobal('fetch', vi.fn())
-    vi.stubGlobal('crypto', { randomUUID: vi.fn().mockReturnValueOnce('user-id').mockReturnValueOnce('ai-id') })
+    vi.stubGlobal('crypto', {
+      randomUUID: vi.fn().mockReturnValueOnce('user-id').mockReturnValueOnce('ai-id'),
+    })
   })
 
   it('adds user message and AI placeholder on sendMessage', async () => {
@@ -53,33 +58,36 @@ describe('useChat', () => {
     await act(() => result.current.sendMessage(BRAND_ID, 'What patterns?'))
 
     expect(mockStore.addChatMessage).toHaveBeenCalledWith(
-      expect.objectContaining({ role: 'user', text: 'What patterns?' })
+      expect.objectContaining({ role: 'user', text: 'What patterns?' }),
     )
     expect(mockStore.addChatMessage).toHaveBeenCalledWith(
-      expect.objectContaining({ role: 'ai', text: '', streaming: true })
+      expect.objectContaining({ role: 'ai', text: '', streaming: true }),
     )
   })
 
   it('posts to /api/analysis/chat with brandId and conversation history', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(makeStreamResponse(['ok']))
 
-    mockStore.chatMessages = [
-      { id: 'prev-ai', role: 'ai', text: 'Prior response' },
-    ]
+    mockStore.chatMessages = [{ id: 'prev-ai', role: 'ai', text: 'Prior response' }]
 
     const { result } = renderHook(() => useChat())
     await act(() => result.current.sendMessage(BRAND_ID, 'Follow-up?'))
 
-    expect(fetch).toHaveBeenCalledWith('/api/analysis/chat', expect.objectContaining({
-      method: 'POST',
-    }))
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/analysis/chat',
+      expect.objectContaining({
+        method: 'POST',
+      }),
+    )
 
     const body = JSON.parse((vi.mocked(fetch).mock.calls[0][1] as RequestInit).body as string)
     expect(body.brandId).toBe(BRAND_ID)
-    expect(body.messages).toEqual(expect.arrayContaining([
-      { role: 'assistant', content: 'Prior response' },
-      { role: 'user', content: 'Follow-up?' },
-    ]))
+    expect(body.messages).toEqual(
+      expect.arrayContaining([
+        { role: 'assistant', content: 'Prior response' },
+        { role: 'user', content: 'Follow-up?' },
+      ]),
+    )
   })
 
   it('accumulates streamed text into AI message', async () => {
@@ -125,7 +133,7 @@ describe('useChat', () => {
 
   it('sets chatError on 500 response', async () => {
     vi.mocked(fetch).mockResolvedValueOnce(
-      new Response(JSON.stringify({ message: 'Server error' }), { status: 500 })
+      new Response(JSON.stringify({ message: 'Server error' }), { status: 500 }),
     )
 
     const { result } = renderHook(() => useChat())
@@ -138,6 +146,38 @@ describe('useChat', () => {
     const { result } = renderHook(() => useChat())
     act(() => result.current.closeChat())
     expect(mockStore.setChatOpen).toHaveBeenCalledWith(false)
+  })
+
+  it('surfaces PROVIDER_ERROR from SSE stream to chatError', async () => {
+    const errorLines = 'data: {"error":"PROVIDER_ERROR"}\n\ndata: [DONE]\n\n'
+    const encoded = new TextEncoder().encode(errorLines)
+    const stream = new ReadableStream({
+      pull(controller) {
+        controller.enqueue(encoded)
+        controller.close()
+      },
+    })
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(stream, { status: 200 }))
+
+    const { result } = renderHook(() => useChat())
+    await act(() => result.current.sendMessage(BRAND_ID, 'Q'))
+
+    expect(mockStore.setChatError).toHaveBeenCalledWith('PROVIDER_ERROR')
+  })
+
+  it('excludes empty-text messages from history (errored AI turns)', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(makeStreamResponse(['ok']))
+
+    mockStore.chatMessages = [
+      { id: 'u1', role: 'user', text: 'First question' },
+      { id: 'a1', role: 'ai', text: '' }, // errored AI turn
+    ]
+
+    const { result } = renderHook(() => useChat())
+    await act(() => result.current.sendMessage(BRAND_ID, 'Next question'))
+
+    const body = JSON.parse((vi.mocked(fetch).mock.calls[0][1] as RequestInit).body as string)
+    expect(body.messages.every((m: { content: string }) => m.content.length > 0)).toBe(true)
   })
 
   it('maps ai role to assistant for API payload', async () => {

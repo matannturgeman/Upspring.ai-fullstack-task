@@ -48,7 +48,7 @@ export class ClaudeService {
   async *streamChat(
     brandName: string,
     ads: AdInput[],
-    messages: { role: 'user' | 'assistant'; content: string }[]
+    messages: { role: 'user' | 'assistant'; content: string }[],
   ): AsyncGenerator<string> {
     if (isMockLLM()) {
       yield* streamMockChat()
@@ -64,19 +64,25 @@ export class ClaudeService {
       })
       .slice(0, 20)
 
-    const adContext = contextAds.map((ad, i) => {
-      const hasThumbnail = Boolean(ad.thumbnailUrl || ad.imageUrl)
-      const mediaNote = ad.videoUrl
-        ? (hasThumbnail ? '[Video — thumbnail analyzed as visual proxy]' : '[Video — no thumbnail; visual analysis limited to copy]')
-        : null
-      return [
-        `--- Ad ${i + 1} ---`,
-        `Platform: ${ad.platform} | Status: ${ad.status}`,
-        mediaNote,
-        ad.headline ? `Headline: ${ad.headline}` : null,
-        ad.primaryText ? `Primary Text: ${ad.primaryText.slice(0, 300)}` : null,
-      ].filter(Boolean).join('\n')
-    }).join('\n\n')
+    const adContext = contextAds
+      .map((ad, i) => {
+        const hasThumbnail = Boolean(ad.thumbnailUrl || ad.imageUrl)
+        const mediaNote = ad.videoUrl
+          ? hasThumbnail
+            ? '[Video — thumbnail analyzed as visual proxy]'
+            : '[Video — no thumbnail; visual analysis limited to copy]'
+          : null
+        return [
+          `--- Ad ${i + 1} ---`,
+          `Platform: ${ad.platform} | Status: ${ad.status}`,
+          mediaNote,
+          ad.headline ? `Headline: ${ad.headline}` : null,
+          ad.primaryText ? `Primary Text: ${ad.primaryText.slice(0, 300)}` : null,
+        ]
+          .filter(Boolean)
+          .join('\n')
+      })
+      .join('\n\n')
 
     const system = `You are an AI creative analyst for brand advertising intelligence.
 You have access to a curated sample of ${contextAds.length} ads from "${brandName}" \
@@ -89,7 +95,7 @@ Answer questions analytically with specific examples from these ads. Be concise 
 
     // Inject up to 10 images (thumbnails or stills) into first user message
     const imageUrls = contextAds
-      .map(ad => ad.thumbnailUrl || ad.imageUrl)
+      .map((ad) => ad.thumbnailUrl || ad.imageUrl)
       .filter((url): url is string => Boolean(url))
       .slice(0, 10)
 
@@ -99,7 +105,7 @@ Answer questions analytically with specific examples from these ads. Be concise 
         return {
           role: 'user',
           content: [
-            ...imageUrls.map(url => ({
+            ...imageUrls.map((url) => ({
               type: 'image' as const,
               source: { type: 'url' as const, url },
             })),
@@ -149,18 +155,23 @@ No explanation. JSON only.`
     }
   }
 
-  async findCompetitorsFromAds(brandName: string, adContext: string): Promise<{ name: string; reason: string }[]> {
+  async findCompetitorsFromAds(
+    brandName: string,
+    adContext: string,
+  ): Promise<{ name: string; reason: string }[]> {
     const response = await this.client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 500,
-      messages: [{
-        role: 'user',
-        content: `Based on brand "${brandName}" and their ad copy below, identify 5 direct competitors.
+      messages: [
+        {
+          role: 'user',
+          content: `Based on brand "${brandName}" and their ad copy below, identify 5 direct competitors.
 Return JSON only: [{ "name": "...", "reason": "one sentence why they compete" }]
 
 Ad copy:
 ${adContext}`,
-      }],
+        },
+      ],
     })
     const text = (response.content[0] as { type: string; text: string }).text
     const match = text.match(/\[[\s\S]*\]/)
@@ -171,7 +182,9 @@ ${adContext}`,
   private buildPrompt(ad: AdInput): string {
     const imageUrl = ad.thumbnailUrl || ad.imageUrl
     const mediaNote = ad.videoUrl
-      ? (imageUrl ? 'Media: Video ad — the image above is the thumbnail frame analyzed as a visual proxy.' : 'Media: Video ad — no thumbnail available; visual analysis limited to copy only.')
+      ? imageUrl
+        ? 'Media: Video ad — the image above is the thumbnail frame analyzed as a visual proxy.'
+        : 'Media: Video ad — no thumbnail available; visual analysis limited to copy only.'
       : ''
     return [
       'Analyze this Meta ad for a brand intelligence report.',
@@ -191,6 +204,8 @@ ${adContext}`,
       '6. **Overall Assessment** — strengths and what could be improved',
       '',
       'Be concise, specific, and actionable.',
-    ].filter(Boolean).join('\n')
+    ]
+      .filter(Boolean)
+      .join('\n')
   }
 }

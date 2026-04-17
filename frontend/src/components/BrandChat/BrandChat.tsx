@@ -17,7 +17,7 @@ export function BrandChat() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  const lastAiMsg = [...chatMessages].reverse().find(m => m.role === 'ai')
+  const lastAiMsg = [...chatMessages].reverse().find((m) => m.role === 'ai')
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -27,26 +27,32 @@ export function BrandChat() {
     if (chatOpen) inputRef.current?.focus()
   }, [chatOpen])
 
-  if (!chatOpen || !currentBrand) return null
-
   const handleSend = useCallback(() => {
     const text = input.trim()
-    if (!text || chatLoading) return
+    if (!text || chatLoading || !currentBrand) return
     setInput('')
-    void sendMessage(currentBrand!._id, text)
+    void sendMessage(currentBrand._id, text)
   }, [input, chatLoading, currentBrand, sendMessage])
 
-  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }, [handleSend])
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        handleSend()
+      }
+    },
+    [handleSend],
+  )
 
-  const handleSuggestion = useCallback((text: string) => {
-    if (chatLoading) return
-    void sendMessage(currentBrand!._id, text)
-  }, [chatLoading, currentBrand, sendMessage])
+  const handleSuggestion = useCallback(
+    (text: string) => {
+      if (chatLoading || !currentBrand) return
+      void sendMessage(currentBrand._id, text)
+    },
+    [chatLoading, currentBrand, sendMessage],
+  )
+
+  if (!chatOpen || !currentBrand) return null
 
   return (
     <div
@@ -63,7 +69,9 @@ export function BrandChat() {
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
               Ask AI about {currentBrand.name}
             </span>
-            <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">claude-sonnet-4-6</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
+              claude-sonnet-4-6
+            </span>
           </div>
           <button
             onClick={closeChat}
@@ -82,7 +90,7 @@ export function BrandChat() {
                 Ask anything about the brand's ad strategy and creative patterns.
               </p>
               <div className="flex flex-wrap gap-2">
-                {SUGGESTIONS.map(s => (
+                {SUGGESTIONS.map((s) => (
                   <button
                     key={s}
                     onClick={() => handleSuggestion(s)}
@@ -96,10 +104,13 @@ export function BrandChat() {
             </div>
           )}
 
-          {chatMessages.map(msg => (
+          {chatMessages.map((msg) => (
             <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
               {msg.role === 'ai' && (
-                <div aria-hidden="true" className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-xs font-bold">
+                <div
+                  aria-hidden="true"
+                  className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-xs font-bold"
+                >
                   AI
                 </div>
               )}
@@ -114,10 +125,15 @@ export function BrandChat() {
                   <>
                     <ReactMarkdown>{msg.text}</ReactMarkdown>
                     {msg.streaming && (
-                      <span aria-hidden="true" className="inline-block w-2 h-4 bg-purple-500 animate-pulse rounded-sm align-middle ml-0.5" />
+                      <span
+                        aria-hidden="true"
+                        className="inline-block w-2 h-4 bg-purple-500 animate-pulse rounded-sm align-middle ml-0.5"
+                      />
                     )}
                     {msg.streaming && !msg.text && (
-                      <span className="text-sm text-gray-400 dark:text-gray-500 italic">Thinking...</span>
+                      <span className="text-sm text-gray-400 dark:text-gray-500 italic">
+                        Thinking...
+                      </span>
                     )}
                   </>
                 ) : (
@@ -128,7 +144,10 @@ export function BrandChat() {
           ))}
 
           {chatError && (
-            <div role="alert" className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3">
+            <div
+              role="alert"
+              className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3"
+            >
               {chatError}
             </div>
           )}
@@ -141,7 +160,7 @@ export function BrandChat() {
           <textarea
             ref={inputRef}
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask about messaging angles, creative patterns, target audience..."
             rows={1}
@@ -157,7 +176,9 @@ export function BrandChat() {
           >
             {chatLoading ? (
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
-            ) : 'Send'}
+            ) : (
+              'Send'
+            )}
           </button>
         </div>
       </div>

@@ -37,7 +37,7 @@ app.use(errorHandler)
 if (env.NODE_ENV !== 'test') {
   connectDB()
     .then(() => app.listen(env.PORT, () => console.log(`Server running on :${env.PORT}`)))
-    .catch(err => {
+    .catch((err) => {
       console.error('[startup] DB connection failed, exiting:', err)
       process.exit(1)
     })

@@ -17,7 +17,7 @@ vi.mock('../../src/store/appStore.ts', () => ({
 
 function makeStreamResponse(chunks: string[]) {
   const lines = [
-    ...chunks.map(c => `data: ${JSON.stringify({ text: c })}\n\n`),
+    ...chunks.map((c) => `data: ${JSON.stringify({ text: c })}\n\n`),
     'data: [DONE]\n\n',
   ].join('')
 
@@ -27,7 +27,10 @@ function makeStreamResponse(chunks: string[]) {
 
   const stream = new ReadableStream({
     pull(controller) {
-      if (pos >= encoded.length) { controller.close(); return }
+      if (pos >= encoded.length) {
+        controller.close()
+        return
+      }
       controller.enqueue(encoded.slice(pos, pos + 50))
       pos += 50
     },
@@ -50,7 +53,7 @@ describe('useAnalysis', () => {
     await act(() => result.current.analyze('aabbccddeeff001122334455'))
 
     expect(mockStore.addMessage).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'test-uuid-1234', role: 'ai' })
+      expect.objectContaining({ id: 'test-uuid-1234', role: 'ai' }),
     )
   })
 
@@ -74,7 +77,9 @@ describe('useAnalysis', () => {
   })
 
   it('silently ignores AbortError (user cancelled)', async () => {
-    const abortError = Object.assign(new Error('The operation was aborted.'), { name: 'AbortError' })
+    const abortError = Object.assign(new Error('The operation was aborted.'), {
+      name: 'AbortError',
+    })
     vi.mocked(fetch).mockRejectedValueOnce(abortError)
 
     const { result } = renderHook(() => useAnalysis())

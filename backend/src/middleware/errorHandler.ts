@@ -6,7 +6,12 @@ interface AppError extends Error {
   code?: string
 }
 
-export function errorHandler(err: AppError, _req: Request, res: Response, _next: NextFunction): void {
+export function errorHandler(
+  err: AppError,
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+): void {
   console.error(err)
   const status = err.status || StatusCodes.INTERNAL_SERVER_ERROR
   res.status(status).json({

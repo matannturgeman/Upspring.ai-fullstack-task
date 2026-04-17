@@ -14,7 +14,13 @@ vi.mock('../../src/hooks/useChat.ts', () => ({
   useChat: () => ({ sendMessage: mockSend, closeChat: mockClose }),
 }))
 
-const BRAND = { _id: 'b1', name: 'Nike', normalizedName: 'nike', lastFetched: '2024-01-01', adCount: 5 }
+const BRAND = {
+  _id: 'b1',
+  name: 'Nike',
+  normalizedName: 'nike',
+  lastFetched: '2024-01-01',
+  adCount: 5,
+}
 
 const base = {
   currentBrand: BRAND,

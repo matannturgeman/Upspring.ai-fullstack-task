@@ -24,9 +24,11 @@ export class CompetitorsController {
       await Brand.findByIdAndUpdate(brandId, { competitors: result.competitors })
 
       const disclaimer =
-        result.source === 'perplexity' ? 'Identified via web search' :
-        result.source === 'claude'     ? 'Identified by AI reasoning from ad content' :
-                                         'Mock data (MOCK_LLM=true)'
+        result.source === 'perplexity'
+          ? 'Identified via web search'
+          : result.source === 'claude'
+            ? 'Identified by AI reasoning from ad content'
+            : 'Mock data (MOCK_LLM=true)'
 
       res.json({ competitors: result.competitors, source: result.source, disclaimer })
     } catch (err) {

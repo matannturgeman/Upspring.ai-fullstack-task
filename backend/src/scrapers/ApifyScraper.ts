@@ -22,7 +22,7 @@ export class ApifyScraper extends BaseScraper {
         adType: 'ALL',
         publisherPlatforms: ['FACEBOOK', 'INSTAGRAM'],
       },
-      { timeout: TIMEOUT_SECS }
+      { timeout: TIMEOUT_SECS },
     )
 
     const { items } = await this.client.dataset(run.defaultDatasetId).listItems()

@@ -31,7 +31,7 @@ export class CompetitorService {
     // Strategy 2: Claude reasoning from stored ad content
     const ads = await Ad.find({ brandId }).lean().limit(10)
     const adContext = ads
-      .map(a => `${a.headline ?? ''} ${a.primaryText ?? ''}`.trim())
+      .map((a) => `${a.headline ?? ''} ${a.primaryText ?? ''}`.trim())
       .filter(Boolean)
       .join('\n')
       .slice(0, 2000)

@@ -38,7 +38,10 @@
       "Bash(git push:*)",
       "Bash(find /c/Dev/Upspring.ai -maxdepth 3 -type f \\\\\\(-name jest.config.* -o -name vitest.config.* -o -name playwright.config.* -o -name cypress.config.* \\\\\\))",
       "Bash(find /c/Dev/Upspring.ai -maxdepth 3 -type f \\\\\\(-name setupTests* -o -name jest.setup.* -o -name vitest.setup.* \\\\\\))",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(BASE_URL=http://localhost:5174 npx playwright test tests/e2e/chat.spec.ts 2>&1)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(npx prettier:*)"
     ]
   }
 }

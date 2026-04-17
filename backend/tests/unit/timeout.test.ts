@@ -12,7 +12,7 @@ function makeMocks() {
       events[event] = events[event] ?? []
       events[event].push(cb)
     }),
-    emit: (event: string) => events[event]?.forEach(cb => cb()),
+    emit: (event: string) => events[event]?.forEach((cb) => cb()),
   } as unknown as Response & { emit: (e: string) => void; headersSent: boolean }
 
   const req = {} as Request

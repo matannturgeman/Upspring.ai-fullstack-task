@@ -17,9 +17,11 @@ export class ScraperRegistry {
   private readonly mock = new MockScraper()
 
   constructor() {
-    const names = env.SCRAPER_PRIORITY.split(',').map(s => s.trim()).filter(Boolean)
+    const names = env.SCRAPER_PRIORITY.split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
 
-    this.scrapers = names.flatMap(name => {
+    this.scrapers = names.flatMap((name) => {
       const factory = SCRAPER_FACTORIES[name]
       if (!factory) {
         console.warn(`[ScraperRegistry] unknown scraper "${name}", skipping`)
@@ -35,7 +37,7 @@ export class ScraperRegistry {
 
     if (this.scrapers.length === 0) {
       throw new Error(
-        `No valid scrapers configured in SCRAPER_PRIORITY="${env.SCRAPER_PRIORITY}". Valid: ${Object.keys(SCRAPER_FACTORIES).join(', ')}`
+        `No valid scrapers configured in SCRAPER_PRIORITY="${env.SCRAPER_PRIORITY}". Valid: ${Object.keys(SCRAPER_FACTORIES).join(', ')}`,
       )
     }
   }

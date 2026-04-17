@@ -5,7 +5,7 @@ import { useAppStore } from '../../store/appStore.ts'
 export function SearchBar() {
   const [input, setInput] = useState('')
   const { search } = useAds()
-  const adsLoading = useAppStore(s => s.adsLoading)
+  const adsLoading = useAppStore((s) => s.adsLoading)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -20,11 +20,13 @@ export function SearchBar() {
       role="search"
       aria-label="Search for brand ads"
     >
-      <label htmlFor="brand-search" className="sr-only">Brand name</label>
+      <label htmlFor="brand-search" className="sr-only">
+        Brand name
+      </label>
       <input
         id="brand-search"
         value={input}
-        onChange={e => setInput(e.target.value)}
+        onChange={(e) => setInput(e.target.value)}
         placeholder="Enter a brand name (e.g. Nike, Airbnb)"
         disabled={adsLoading}
         autoComplete="off"

@@ -28,8 +28,14 @@ export function useChat() {
     // chatMessages is the pre-send snapshot (captured at render time, before addChatMessage calls above).
     // Intentional: the API receives only prior history + new user message,
     // not the blank AI placeholder just added for the UI.
+    // Filter out empty-text messages — errored AI turns leave text='' which fails API validation.
     const history = [
-      ...chatMessages.map(m => ({ role: m.role === 'ai' ? 'assistant' as const : 'user' as const, content: m.text })),
+      ...chatMessages
+        .filter((m) => m.text.length > 0)
+        .map((m) => ({
+          role: m.role === 'ai' ? ('assistant' as const) : ('user' as const),
+          content: m.text,
+        })),
       { role: 'user' as const, content: userText },
     ]
 
@@ -66,8 +72,9 @@ export function useChat() {
               accumulated += parsed.text
               updateChatMessage(aiMsgId, accumulated, true)
             }
-          } catch {
-            // partial chunk — skip
+          } catch (e) {
+            if (e instanceof SyntaxError) continue // malformed JSON chunk — skip
+            throw e // real error (e.g. PROVIDER_ERROR) — propagate to outer catch
           }
         }
       }

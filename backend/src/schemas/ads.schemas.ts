@@ -2,9 +2,19 @@ import { z } from 'zod'
 
 // Request schemas
 export const AdsQuerySchema = z.object({
-  brand: z.string().min(1).max(100).transform(v => v.replace(/[<>"']/g, '').trim()),
-  limit: z.string().optional().transform(v => Math.min(parseInt(v ?? '20') || 20, 50)),
-  forceRefresh: z.enum(['true', 'false']).optional().transform(v => v === 'true'),
+  brand: z
+    .string()
+    .min(1)
+    .max(100)
+    .transform((v) => v.replace(/[<>"']/g, '').trim()),
+  limit: z
+    .string()
+    .optional()
+    .transform((v) => Math.min(parseInt(v ?? '20') || 20, 50)),
+  forceRefresh: z
+    .enum(['true', 'false'])
+    .optional()
+    .transform((v) => v === 'true'),
 })
 
 // Response schemas

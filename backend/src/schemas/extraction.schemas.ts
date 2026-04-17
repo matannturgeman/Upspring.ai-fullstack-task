@@ -16,9 +16,6 @@ export type ExtractionResult = z.infer<typeof ExtractionSchema>
 
 /** Count meaningfully populated display fields. Used to decide if AI fallback is needed. */
 export function extractionScore(r: ExtractionResult): number {
-  return [
-    r.headline,
-    r.primaryText,
-    r.imageUrl ?? r.videoUrl ?? r.thumbnailUrl,
-  ].filter(Boolean).length
+  return [r.headline, r.primaryText, r.imageUrl ?? r.videoUrl ?? r.thumbnailUrl].filter(Boolean)
+    .length
 }

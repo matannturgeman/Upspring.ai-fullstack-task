@@ -8,14 +8,18 @@ export interface ISearchSession {
   adsFound: number
 }
 
-const SearchSessionSchema = new mongoose.Schema<ISearchSession>({
-  brandId: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand' },
-  query: String,
-  status: { type: String, enum: ['pending', 'fetching', 'done', 'error'], default: 'pending' },
-  errorMessage: String,
-  adsFound: { type: Number, default: 0 },
-}, { timestamps: true })
+const SearchSessionSchema = new mongoose.Schema<ISearchSession>(
+  {
+    brandId: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand' },
+    query: String,
+    status: { type: String, enum: ['pending', 'fetching', 'done', 'error'], default: 'pending' },
+    errorMessage: String,
+    adsFound: { type: Number, default: 0 },
+  },
+  { timestamps: true },
+)
 
 SearchSessionSchema.index({ createdAt: 1 }, { expireAfterSeconds: 86400 })
 
-export default (mongoose.models.SearchSession as mongoose.Model<ISearchSession>) ?? mongoose.model<ISearchSession>('SearchSession', SearchSessionSchema)
+export default (mongoose.models.SearchSession as mongoose.Model<ISearchSession>) ??
+  mongoose.model<ISearchSession>('SearchSession', SearchSessionSchema)

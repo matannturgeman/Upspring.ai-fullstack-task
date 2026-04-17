@@ -46,7 +46,7 @@ export class RapidApiScraper extends BaseScraper {
 
     if (items.length === 0) return { ads: [], partial: false, empty: true, scraper: this.name }
 
-    const ads = items.map(r => ({
+    const ads = items.map((r) => ({
       id: r.ad_archive_id ?? r.id,
       page_name: r.page_name ?? brandName,
       ad_creative_bodies: r.ad_creative_bodies ?? (r.body ? [r.body] : []),

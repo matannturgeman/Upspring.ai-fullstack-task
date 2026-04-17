@@ -47,20 +47,29 @@ export function AnalysisPanel() {
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
           {analysisError && (
-            <div role="alert" className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3">
+            <div
+              role="alert"
+              className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3"
+            >
               {analysisError}
             </div>
           )}
 
           {message && (
             <div className="flex gap-3">
-              <div aria-hidden="true" className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-xs font-bold">
+              <div
+                aria-hidden="true"
+                className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-xs font-bold"
+              >
                 AI
               </div>
               <div className="flex-1 min-w-0 prose prose-sm dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
                 <ReactMarkdown>{message.text}</ReactMarkdown>
                 {message.streaming && (
-                  <span aria-hidden="true" className="inline-block w-2 h-4 bg-purple-500 animate-pulse rounded-sm align-middle ml-0.5" />
+                  <span
+                    aria-hidden="true"
+                    className="inline-block w-2 h-4 bg-purple-500 animate-pulse rounded-sm align-middle ml-0.5"
+                  />
                 )}
               </div>
             </div>
@@ -68,10 +77,15 @@ export function AnalysisPanel() {
 
           {analysisLoading && !message?.text && (
             <div role="status" aria-live="polite" className="flex gap-3 items-center">
-              <div aria-hidden="true" className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+              <div
+                aria-hidden="true"
+                className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center"
+              >
                 <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
               </div>
-              <span className="text-sm text-gray-400 dark:text-gray-500 italic">Analyzing ad...</span>
+              <span className="text-sm text-gray-400 dark:text-gray-500 italic">
+                Analyzing ad...
+              </span>
             </div>
           )}
 

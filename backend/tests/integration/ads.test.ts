@@ -22,7 +22,9 @@ const mockScrape = vi.fn()
 
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.mocked(ScraperRegistry).mockImplementation(() => ({ scrape: mockScrape }) as unknown as ScraperRegistry)
+  vi.mocked(ScraperRegistry).mockImplementation(
+    () => ({ scrape: mockScrape }) as unknown as ScraperRegistry,
+  )
 })
 
 describe('GET /api/ads', () => {

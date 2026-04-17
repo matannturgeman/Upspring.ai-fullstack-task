@@ -13,12 +13,16 @@ export interface IBrand {
   competitors: ICompetitor[]
 }
 
-const BrandSchema = new mongoose.Schema<IBrand>({
-  name: { type: String, required: true, index: true },
-  normalizedName: { type: String, required: true, index: true, unique: true },
-  lastFetched: { type: Date, default: Date.now },
-  adCount: { type: Number, default: 0 },
-  competitors: [{ name: String, reason: String }],
-}, { timestamps: true })
+const BrandSchema = new mongoose.Schema<IBrand>(
+  {
+    name: { type: String, required: true, index: true },
+    normalizedName: { type: String, required: true, index: true, unique: true },
+    lastFetched: { type: Date, default: Date.now },
+    adCount: { type: Number, default: 0 },
+    competitors: [{ name: String, reason: String }],
+  },
+  { timestamps: true },
+)
 
-export default (mongoose.models.Brand as mongoose.Model<IBrand>) ?? mongoose.model<IBrand>('Brand', BrandSchema)
+export default (mongoose.models.Brand as mongoose.Model<IBrand>) ??
+  mongoose.model<IBrand>('Brand', BrandSchema)

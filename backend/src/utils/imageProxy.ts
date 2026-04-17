@@ -33,14 +33,18 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
   const { url } = req.query
 
   if (!url || typeof url !== 'string') {
-    res.status(StatusCodes.BAD_REQUEST).json({ error: true, message: 'url query param required', code: 'MISSING_URL' })
+    res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ error: true, message: 'url query param required', code: 'MISSING_URL' })
     return
   }
 
   const decoded = decodeURIComponent(url)
 
   if (!isAllowedUrl(decoded)) {
-    res.status(StatusCodes.FORBIDDEN).json({ error: true, message: 'URL not allowed', code: 'DISALLOWED_URL' })
+    res
+      .status(StatusCodes.FORBIDDEN)
+      .json({ error: true, message: 'URL not allowed', code: 'DISALLOWED_URL' })
     return
   }
 
@@ -61,7 +65,10 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     const reader = upstream.body.getReader()
     const pump = async (): Promise<void> => {
       const { done, value } = await reader.read()
-      if (done) { res.end(); return }
+      if (done) {
+        res.end()
+        return
+      }
       res.write(Buffer.from(value))
       return pump()
     }

@@ -1,5 +1,9 @@
 import { codeExtract } from './extraction/codeExtractor.ts'
-import { ExtractionSchema, extractionScore, type ExtractionResult } from '../schemas/extraction.schemas.ts'
+import {
+  ExtractionSchema,
+  extractionScore,
+  type ExtractionResult,
+} from '../schemas/extraction.schemas.ts'
 import { isMockLLM } from '../utils/mockMode.ts'
 import type { ClaudeService } from './ClaudeService.ts'
 

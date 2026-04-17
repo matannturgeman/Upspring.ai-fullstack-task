@@ -13,9 +13,15 @@ export function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 shadow-sm" role="banner">
+      <header
+        className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 shadow-sm"
+        role="banner"
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <a href="/" className="text-xl font-bold text-gray-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
+          <a
+            href="/"
+            className="text-xl font-bold text-gray-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+          >
             Upspring.ai — Ad Intelligence
           </a>
           <ThemeToggle theme={theme} onToggle={toggle} />
@@ -24,8 +30,15 @@ export function Home() {
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-6" id="main-content" role="main">
         <section aria-labelledby="search-heading" className="flex flex-col items-center gap-2">
-          <h1 id="search-heading" className="text-2xl font-semibold text-gray-800 dark:text-gray-100">Research Brand Ads</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">Enter a brand name to explore their Meta ads</p>
+          <h1
+            id="search-heading"
+            className="text-2xl font-semibold text-gray-800 dark:text-gray-100"
+          >
+            Research Brand Ads
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            Enter a brand name to explore their Meta ads
+          </p>
           <SearchBar />
         </section>
 
@@ -36,10 +49,17 @@ export function Home() {
             aria-label="Fetching ads"
             className="flex items-center gap-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3 max-w-md mx-auto"
           >
-            <div aria-hidden="true" className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+            <div
+              aria-hidden="true"
+              className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin flex-shrink-0"
+            />
             <div>
-              <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Fetching ads from Meta Ads Library...</p>
-              <p className="text-xs text-blue-600 dark:text-blue-400">This can take 15–30 seconds</p>
+              <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                Fetching ads from Meta Ads Library...
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                This can take 15–30 seconds
+              </p>
             </div>
           </div>
         )}
@@ -47,7 +67,8 @@ export function Home() {
         {!adsLoading && ads.length > 0 && currentBrand && (
           <div className="flex items-center justify-between">
             <p aria-live="polite" className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-              {ads.length} ads found for <span className="text-blue-600 dark:text-blue-400">{currentBrand.name}</span>
+              {ads.length} ads found for{' '}
+              <span className="text-blue-600 dark:text-blue-400">{currentBrand.name}</span>
             </p>
             <button
               onClick={() => setChatOpen(true)}

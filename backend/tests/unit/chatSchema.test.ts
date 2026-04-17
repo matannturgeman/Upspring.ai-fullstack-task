@@ -23,7 +23,10 @@ describe('ChatBodySchema', () => {
   })
 
   it('accepts mixed-case hex brandId', () => {
-    const result = ChatBodySchema.safeParse({ brandId: 'aAbBcCdDeEfF001122334455', messages: [VALID_MSG] })
+    const result = ChatBodySchema.safeParse({
+      brandId: 'aAbBcCdDeEfF001122334455',
+      messages: [VALID_MSG],
+    })
     expect(result.success).toBe(true)
   })
 
@@ -75,7 +78,10 @@ describe('ChatBodySchema', () => {
   })
 
   it('rejects SQL injection in brandId', () => {
-    const result = ChatBodySchema.safeParse({ brandId: "'; DROP TABLE brands; --", messages: [VALID_MSG] })
+    const result = ChatBodySchema.safeParse({
+      brandId: "'; DROP TABLE brands; --",
+      messages: [VALID_MSG],
+    })
     expect(result.success).toBe(false)
   })
 })

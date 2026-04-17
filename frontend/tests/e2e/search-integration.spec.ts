@@ -45,8 +45,8 @@ test.describe('Full-stack search integration', () => {
     await page.getByLabel(/Brand name/i).fill('Nike')
 
     // Intercept to add a small delay so loading state is catchable
-    await page.route('**/api/ads**', async route => {
-      await new Promise(r => setTimeout(r, 300))
+    await page.route('**/api/ads**', async (route) => {
+      await new Promise((r) => setTimeout(r, 300))
       await route.continue()
     })
 
