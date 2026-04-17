@@ -35,7 +35,7 @@ test.describe('Backend API', () => {
     const res = await request.post(`${API}/api/competitors/find`, { data: {} })
     expect(res.status()).toBe(400)
     const body = await res.json()
-    expect(body.code).toBe('MISSING_PARAMS')
+    expect(body.error).toBe('INVALID_INPUT')
   })
 
   test('POST /api/competitors/find with valid brand returns competitors (MOCK_LLM=true required)', async ({

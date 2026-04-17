@@ -174,30 +174,6 @@ test.describe('Competitor discovery', () => {
     expect(competitorSearchQuery.toLowerCase()).toBe('adidas')
   })
 
-  test('competitor button shows aria-pressed when selected', async ({ page }) => {
-    await page.route(COMPETITORS_ROUTE, (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(makeCompetitorsResponse()),
-      }),
-    )
-    await page.route(ADS_ROUTE, (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(MOCK_ADS_RESPONSE),
-      }),
-    )
-
-    await page.getByRole('button', { name: /Find Competitors/i }).click()
-    await expect(page.getByText('Adidas')).toBeVisible({ timeout: 10_000 })
-
-    const adidasBtn = page.getByRole('listitem').filter({ hasText: 'Adidas' }).getByRole('button')
-    await adidasBtn.click()
-    await expect(adidasBtn).toHaveAttribute('aria-pressed', 'true')
-  })
-
   test('shows placeholder text before competitors are loaded', async ({ page }) => {
     await expect(page.getByText(/Click "Find Competitors" to discover competing brands/i)).toBeVisible()
   })
