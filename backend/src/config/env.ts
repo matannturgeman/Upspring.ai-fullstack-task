@@ -35,6 +35,7 @@ const EnvSchema = z.object({
 
   // Cache
   BRAND_CACHE_TTL_MS: z.coerce.number().int().min(0).default(600_000),
+  COMPETITOR_CACHE_TTL_MS: z.coerce.number().int().min(0).default(600_000),
 })
 
 const parsed = EnvSchema.safeParse(process.env)

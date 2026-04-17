@@ -11,6 +11,7 @@ export interface IBrand {
   lastFetched: Date
   adCount: number
   competitors: ICompetitor[]
+  competitorsFetchedAt?: Date
 }
 
 const BrandSchema = new mongoose.Schema<IBrand>(
@@ -20,6 +21,7 @@ const BrandSchema = new mongoose.Schema<IBrand>(
     lastFetched: { type: Date, default: Date.now },
     adCount: { type: Number, default: 0 },
     competitors: [{ name: String, reason: String }],
+    competitorsFetchedAt: { type: Date },
   },
   { timestamps: true },
 )

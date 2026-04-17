@@ -42,6 +42,7 @@ function chatSseBody(text: string) {
 
 test.describe('Brand AI Chat', () => {
   test.beforeEach(async ({ page }) => {
+    await page.goto('/')
     await page.route(ADS_ROUTE, (route) =>
       route.fulfill({
         status: 200,
@@ -49,10 +50,9 @@ test.describe('Brand AI Chat', () => {
         body: JSON.stringify(MOCK_ADS_RESPONSE),
       }),
     )
-    await page.goto('/')
     await page.getByLabel(/Brand name/i).fill('Nike')
     await page.getByRole('button', { name: /^Search$/i }).click()
-    await expect(page.getByTestId('ad-card')).toBeVisible()
+    await expect(page.getByTestId('ad-card').first()).toBeVisible()
   })
 
   test('"Ask AI about these ads" button is visible after search', async ({ page }) => {
@@ -104,7 +104,7 @@ test.describe('Brand AI Chat', () => {
     )
 
     await page.getByRole('button', { name: /Ask AI about these ads/i }).click()
-    await page.getByRole('textbox').fill('What copy patterns exist?')
+    await page.getByLabel(/Chat message input/i).fill('What copy patterns exist?')
     await page.getByRole('button', { name: /send/i }).click()
 
     await expect(page.getByText('What copy patterns exist?')).toBeVisible()
@@ -121,8 +121,8 @@ test.describe('Brand AI Chat', () => {
     )
 
     await page.getByRole('button', { name: /Ask AI about these ads/i }).click()
-    await page.getByRole('textbox').fill('Quick question')
-    await page.getByRole('textbox').press('Enter')
+    await page.getByLabel(/Chat message input/i).fill('Quick question')
+    await page.getByLabel(/Chat message input/i).press('Enter')
 
     await expect(page.getByText(/Answer here/i)).toBeVisible({ timeout: 10_000 })
   })
@@ -155,7 +155,7 @@ test.describe('Brand AI Chat', () => {
     )
 
     await page.getByRole('button', { name: /Ask AI about these ads/i }).click()
-    await page.getByRole('textbox').fill('What patterns?')
+    await page.getByLabel(/Chat message input/i).fill('What patterns?')
     await page.getByRole('button', { name: /send/i }).click()
 
     await expect(page.getByRole('alert')).toBeVisible({ timeout: 10_000 })
@@ -185,7 +185,7 @@ test.describe('Brand AI Chat', () => {
 
     // Open chat and send a message
     await page.getByRole('button', { name: /Ask AI about these ads/i }).click()
-    await page.getByRole('textbox').fill('First question')
+    await page.getByLabel(/Chat message input/i).fill('First question')
     await page.getByRole('button', { name: /send/i }).click()
     await expect(page.getByText(/Answer/i)).toBeVisible({ timeout: 10_000 })
 
@@ -193,7 +193,7 @@ test.describe('Brand AI Chat', () => {
     await page.getByRole('button', { name: /close chat/i }).click()
     await page.getByLabel(/Brand name/i).fill('Adidas')
     await page.getByRole('button', { name: /^Search$/i }).click()
-    await expect(page.getByTestId('ad-card')).toBeVisible()
+    await expect(page.getByTestId('ad-card').first()).toBeVisible()
 
     // Re-open chat — should be empty
     await page.getByRole('button', { name: /Ask AI about these ads/i }).click()
@@ -223,7 +223,7 @@ test.describe('Brand AI Chat', () => {
     await expect(page.getByRole('dialog')).toBeVisible()
 
     // Send a message to confirm the component is fully functional after reopen
-    await page.getByRole('textbox').fill('Still working?')
+    await page.getByLabel(/Chat message input/i).fill('Still working?')
     await page.getByRole('button', { name: /send/i }).click()
     await expect(page.getByText(/Answer/i)).toBeVisible({ timeout: 10_000 })
 
@@ -239,7 +239,7 @@ test.describe('Brand AI Chat', () => {
     )
 
     await page.getByRole('button', { name: /Ask AI about these ads/i }).click()
-    await page.getByRole('textbox').fill('Trigger stream error')
+    await page.getByLabel(/Chat message input/i).fill('Trigger stream error')
     await page.getByRole('button', { name: /send/i }).click()
 
     // Error must be shown — not a perpetual "Thinking..." spinner
@@ -273,12 +273,12 @@ test.describe('Brand AI Chat', () => {
     await page.getByRole('button', { name: /Ask AI about these ads/i }).click()
 
     // First message — fails
-    await page.getByRole('textbox').fill('First message')
+    await page.getByLabel(/Chat message input/i).fill('First message')
     await page.getByRole('button', { name: /send/i }).click()
     await expect(page.getByRole('alert')).toBeVisible({ timeout: 10_000 })
 
     // Second message — must succeed (not 400 from empty content in history)
-    await page.getByRole('textbox').fill('Second message')
+    await page.getByLabel(/Chat message input/i).fill('Second message')
     await page.getByRole('button', { name: /send/i }).click()
     await expect(page.getByText(/Recovery response/i)).toBeVisible({ timeout: 10_000 })
 
@@ -297,11 +297,11 @@ test.describe('Brand AI Chat', () => {
     })
 
     await page.getByRole('button', { name: /Ask AI about these ads/i }).click()
-    await page.getByRole('textbox').fill('First question')
+    await page.getByLabel(/Chat message input/i).fill('First question')
     await page.getByRole('button', { name: /send/i }).click()
     await expect(page.getByText(/Urgency is the main angle/i)).toBeVisible({ timeout: 10_000 })
 
-    await page.getByRole('textbox').fill('What else?')
+    await page.getByLabel(/Chat message input/i).fill('What else?')
     await page.getByRole('button', { name: /send/i }).click()
     await expect(page.getByText(/Social proof is secondary/i)).toBeVisible({ timeout: 10_000 })
 
